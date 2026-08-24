@@ -31,4 +31,21 @@ class RecommendationController extends Controller
             'useCascading' => $useCascading
         ]);
     }
+
+    public function getGraphData(Request $request)
+    {
+        $targetName = $request->query('target_name');
+        $rekomNames = $request->query('rekom_names');
+
+        $response = Http::timeout(30)->get('http://127.0.0.1:8000/api/graph', [
+            'target_name' => $targetName,
+            'rekom_names' => $rekomNames
+        ]);
+
+        if ($response->successful()) {
+            return response()->json($response->json());
+        }
+
+        return response()->json(['status' => 'error', 'data' => ['nodes' => [], 'edges' => []]], 500);
+    }
 }

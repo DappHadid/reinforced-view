@@ -8,3 +8,4 @@ Route::get('/', function () {
 });
 
 Route::get('/rekomendasi', [RecommendationController::class, 'index']);
+Route::get('/graph-data', [RecommendationController::class, 'getGraphData']);
