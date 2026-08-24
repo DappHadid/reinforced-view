@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -61,7 +61,23 @@
 
     @if(count($rekomendasi) > 0)
         <!-- TEMPAT GRAFIK -->
-        <h3>Grafik Relasi Jaringan (Interactive)</h3>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <h3 style="margin: 0;">Grafik Relasi Jaringan (Interactive)</h3>
+            <div style="display: flex; gap: 8px;">
+                <button id="btn-zoom-in" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Zoom In (+)</button>
+                <button id="btn-zoom-out" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Zoom Out (-)</button>
+                <button id="btn-fit-graph" style="padding: 6px 12px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">⤢ Fit ke Layar</button>
+            </div>
+        </div>
+        
+        <!-- LEGEND -->
+        <div style="margin-bottom: 10px; display: flex; gap: 15px; font-size: 13px; background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb;">
+            <strong>Keterangan:</strong>
+            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #FEE2E2; border: 2px solid #EF4444; border-radius: 3px;"></div> Dosen Target</span>
+            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #DCFCE7; border: 2px solid #22C55E; border-radius: 3px;"></div> Dosen Rekomendasi</span>
+            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #E0F2FE; border: 2px solid #38BDF8; border-radius: 3px;"></div> Dosen Perantara (Koneksi)</span>
+        </div>
+
         <div id="network-graph"><div style="padding: 20px; color: gray;">Memuat grafik relasi...</div></div>
         
         <h3>Tabel Rekomendasi</h3>
@@ -205,46 +221,18 @@
                             network.setOptions({ physics: false });
                             network.fit({ animation: { duration: 600, easingFunction: "easeOutQuad" } });
                         });
-
-                        // Batasi zoom in dan zoom out dengan flag guard agar tidak loop
-                        const MIN_ZOOM = 0.5;
-                        const MAX_ZOOM = 2.5;
-                        let isZoomClamping = false;
-
-                        network.on("zoom", function () {
-                            if (isZoomClamping) return;
-                            const scale = network.getScale();
-                            if (scale < MIN_ZOOM) {
-                                isZoomClamping = true;
-                                network.moveTo({ scale: MIN_ZOOM });
-                                isZoomClamping = false;
-                            } else if (scale > MAX_ZOOM) {
-                                isZoomClamping = true;
-                                network.moveTo({ scale: MAX_ZOOM });
-                                isZoomClamping = false;
-                            }
+                        // Tambahkan event handler untuk tombol-tombol toolbar
+                        document.getElementById('btn-zoom-in').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            network.moveTo({ scale: network.getScale() * 1.5, animation: { duration: 300 } });
                         });
-
-                        network.on("dragEnd", function () {
-                            const containerWidth = container.offsetWidth;
-                            const containerHeight = container.offsetHeight;
-                            const nodeIds = nodes.getIds();
-                            let anyVisible = false;
-
-                            for (const id of nodeIds) {
-                                const pos = network.canvasToDOM(network.getPosition(id));
-                                if (
-                                    pos.x >= -50 && pos.x <= containerWidth + 50 &&
-                                    pos.y >= -50 && pos.y <= containerHeight + 50
-                                ) {
-                                    anyVisible = true;
-                                    break;
-                                }
-                            }
-
-                            if (!anyVisible) {
-                                network.fit({ animation: { duration: 500, easingFunction: "easeOutQuad" } });
-                            }
+                        document.getElementById('btn-zoom-out').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            network.moveTo({ scale: network.getScale() / 1.5, animation: { duration: 300 } });
+                        });
+                        document.getElementById('btn-fit-graph').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            network.fit({ animation: { duration: 600, easingFunction: "easeOutQuad" } });
                         });
 
                     } else {
