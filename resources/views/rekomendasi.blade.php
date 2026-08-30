@@ -1,11 +1,14 @@
-s<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Rekomendasi Kolaborasi</title>
+
+    @vite(['resources/css/app.css'])
+
     <style>
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        body { font-family: 'SF Pro Display', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; margin: 20px; line-height: 1.6; }
         table { border-collapse: collapse; width: 100%; margin-top: 20px; font-size: 14px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background: #eee; }
