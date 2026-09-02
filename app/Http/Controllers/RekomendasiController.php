@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Support\DummyDataProvider;
 use Illuminate\Http\Request;
 
-class DashboardController extends Controller
+class RekomendasiController extends Controller
 {
     public function index(Request $request)
     {
@@ -22,16 +22,31 @@ class DashboardController extends Controller
             $graphData = DummyDataProvider::graph($name, $rekomNames);
         }
 
-        $evaluasiHybrid = DummyDataProvider::evaluasi(true);
-
-        return view('dashboard', [
+        return view('rekomendasi', [
             'dosenList' => $dosenList,
             'rekomendasi' => $rekomendasi,
             'graphData' => $graphData,
             'currentName' => $name,
             'useCascading' => $useCascading,
-            'evaluasiTerakhir' => $evaluasiHybrid,
-            'totalRekomendasiDicari' => 128,
         ]);
+    }
+
+    public function submitPenilaian(Request $request)
+    {
+        $validated = $request->validate([
+            'rekomendasi_sinta_id' => 'required|string',
+            'rekomendasi_nama' => 'required|string',
+            'rating' => 'required|integer|min:1|max:5',
+            'komentar' => 'nullable|string|max:1000',
+            'name' => 'required|string',
+            'use_cascading' => 'nullable|string',
+        ]);
+
+        return redirect()
+            ->route('rekomendasi', [
+                'name' => $validated['name'],
+                'use_cascading' => $validated['use_cascading'] ?? 'true',
+            ])
+            ->with('status', "Penilaian untuk {$validated['rekomendasi_nama']} berhasil disimpan (mode demo).");
     }
 }
