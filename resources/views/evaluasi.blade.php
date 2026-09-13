@@ -65,5 +65,63 @@
             </div>
         @endforeach
     </section>
+    {{-- ============ RIWAYAT PENILAIAN ============ --}}
+    <div class="mt-12 mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Riwayat Penilaian Pengguna</h2>
+        <p class="text-sm text-slate-500">Daftar evaluasi kualitas rekomendasi yang diberikan oleh responden.</p>
+    </div>
 
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
+                    <tr>
+                        <th class="px-6 py-4">Responden</th>
+                        <th class="px-6 py-4">Metode</th>
+                        <th class="px-6 py-4">Target Peneliti</th>
+                        <th class="px-6 py-4">Rekomendasi Dinilai</th>
+                        <th class="px-6 py-4 text-center">Skor</th>
+                        <th class="px-6 py-4">Komentar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($penilaianRekap as $rekap)
+                        @if(isset($rekap['rekomendasi']) && is_array($rekap['rekomendasi']))
+                            @foreach($rekap['rekomendasi'] as $rek)
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">{{ $rek['responden'] ?? 'Responden 1' }}</td>
+                                    <td class="px-6 py-4">
+                                        @if(($rek['metode'] ?? '') == 'Cascading Hybrid')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
+                                        @elseif(($rek['metode'] ?? '') == 'Standard ANE')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Standard ANE</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-600">{{ $rekap['nama'] }}</td>
+                                    <td class="px-6 py-4 text-slate-900">{{ $rek['nama'] }}</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex items-center justify-center text-amber-400">
+                                            {{ $rek['score'] }}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500 max-w-xs truncate" title="{{ $rek['komentar'] ?? '' }}">
+                                        {{ !empty($rek['komentar']) ? $rek['komentar'] : '-' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                                Belum ada data penilaian dari responden.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection
