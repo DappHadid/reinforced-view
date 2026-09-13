@@ -16,7 +16,7 @@ class RekomendasiController extends Controller
         $rekomendasi = [];
         $graphData = ['nodes' => [], 'edges' => []];
 
-        $hasEvaluated = false;
+        $evaluatedRekomendasi = [];
 
         if ($name !== '') {
             $rekomendasi = ApiDataProvider::rekomendasi($name, $useCascading);
@@ -26,7 +26,11 @@ class RekomendasiController extends Controller
             $rekap = ApiDataProvider::penilaianRekap();
             foreach ($rekap as $r) {
                 if (strcasecmp($r['nama'], $name) === 0) {
-                    $hasEvaluated = true;
+                    if (isset($r['rekomendasi']) && is_array($r['rekomendasi'])) {
+                        foreach ($r['rekomendasi'] as $rek) {
+                            $evaluatedRekomendasi[] = strtolower(trim($rek['nama']));
+                        }
+                    }
                     break;
                 }
             }
@@ -38,7 +42,7 @@ class RekomendasiController extends Controller
             'graphData' => $graphData,
             'currentName' => $name,
             'useCascading' => $useCascading,
-            'hasEvaluated' => $hasEvaluated,
+            'evaluatedRekomendasi' => $evaluatedRekomendasi,
         ]);
     }
 

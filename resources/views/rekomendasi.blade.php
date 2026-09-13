@@ -119,7 +119,11 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                                     Detail
                                 </button>
-                                @if($hasEvaluated)
+                                @php
+                                    $rekNameLower = strtolower(trim($r['Rekomendasi_Nama']));
+                                    $hasEvaluatedThis = in_array($rekNameLower, $evaluatedRekomendasi);
+                                @endphp
+                                @if($hasEvaluatedThis)
                                     <button type="button" disabled
                                         class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
