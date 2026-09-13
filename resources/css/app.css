@@ -48,4 +48,16 @@
 @theme {
     --font-sans: 'SF Pro Display', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        
+    --color-primary-50: #fff1e6;
+    --color-primary-100: #ffe0c2;
+    --color-primary-200: #ffc08a;
+    --color-primary-300: #ff9c4d;
+    --color-primary-400: #ff8222;
+    --color-primary-500: #ff7704;
+    --color-primary-600: #e66200;
+    --color-primary-700: #b34b00;
+    --color-primary-800: #803400;
+    --color-primary-900: #4d1f00;
+    --color-primary-950: #2b1100;
 }

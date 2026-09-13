@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Cari Rekomendasi | REINFORCED')
 @section('page-title', 'Cari Rekomendasi')
@@ -9,15 +9,15 @@
     {{-- ============ SEARCH FORM ============ --}}
     <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
         <div class="flex items-center gap-2 mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <h2 class="text-base font-bold text-slate-900">Cari Kolaborator</h2>
         </div>
 
         <form action="{{ route('rekomendasi') }}" method="GET" class="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-end">
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Peneliti Target</label>
-                <select name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition">
-                    <option value="">— Pilih Peneliti —</option>
+                <select name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 focus:outline-none transition">
+                    <option value="">â€” Pilih Peneliti â€”</option>
                     @foreach($dosenList as $dosen)
                         <option value="{{ $dosen['nama'] }}" {{ strcasecmp($currentName, $dosen['nama']) === 0 ? 'selected' : '' }}>
                             {{ $dosen['nama'] }} &middot; SINTA {{ $dosen['sinta_id'] }}
@@ -31,16 +31,16 @@
                 <div class="flex rounded-xl border border-slate-200 bg-slate-50 p-1 text-sm font-medium">
                     <label class="cursor-pointer">
                         <input type="radio" name="use_cascading" value="false" class="peer sr-only" {{ !$useCascading ? 'checked' : '' }}>
-                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-blue-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Standar</span>
+                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Standar</span>
                     </label>
                     <label class="cursor-pointer">
                         <input type="radio" name="use_cascading" value="true" class="peer sr-only" {{ $useCascading ? 'checked' : '' }}>
-                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-blue-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Cascading Hybrid</span>
+                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Cascading Hybrid</span>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors">
+            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 Cari Rekomendasi
             </button>
@@ -85,7 +85,7 @@
                     <div class="px-6 py-5">
                         <div class="flex flex-col lg:flex-row lg:items-center gap-4">
                             <div class="flex items-center gap-3 lg:w-64 shrink-0">
-                                <div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
+                                <div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold">
                                     {{ $i + 1 }}
                                 </div>
                                 <div class="min-w-0">
@@ -120,7 +120,7 @@
                                     Detail
                                 </button>
                                 <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
-                                    class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
+                                    class="inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                                     Nilai
                                 </button>
@@ -128,7 +128,7 @@
                         </div>
 
                         <div class="mt-3 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600" style="width: {{ $pct }}%"></div>
+                            <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-primary-600" style="width: {{ $pct }}%"></div>
                         </div>
                     </div>
 
@@ -212,13 +212,13 @@
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Komentar (opsional)</label>
                                     <textarea name="komentar" rows="3" placeholder="Tulis catatan mengenai relevansi rekomendasi ini..."
-                                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition"></textarea>
+                                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 focus:outline-none transition"></textarea>
                                 </div>
                             </div>
 
                             <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
                                 <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').close()" class="rounded-lg px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50">Batal</button>
-                                <button type="submit" class="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-semibold text-white transition-colors">Simpan Penilaian</button>
+                                <button type="submit" class="rounded-lg bg-primary-600 hover:bg-primary-700 px-4 py-2 text-xs font-semibold text-white transition-colors">Simpan Penilaian</button>
                             </div>
                         </form>
                     </dialog>

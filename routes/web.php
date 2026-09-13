@@ -5,8 +5,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\EvaluasiController;
-use App\Http\Controllers\JaringanController;
-use App\Http\Controllers\TentangController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -18,6 +16,4 @@ Route::get('/dosen/{sintaId}', [DosenController::class, 'show'])->name('dosen.sh
 
 Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi');
 
-Route::get('/jaringan', [JaringanController::class, 'index'])->name('jaringan');
 
-Route::get('/tentang', [TentangController::class, 'index'])->name('tentang');

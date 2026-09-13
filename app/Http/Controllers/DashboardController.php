@@ -9,29 +9,25 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $name = $request->query('name', '');
-        $useCascading = $request->query('use_cascading', 'true') === 'true';
+        $departemen = $request->query('departemen', '');
 
-        $dosenList = DummyDataProvider::dosenList();
-        $rekomendasi = [];
-        $graphData = ['nodes' => [], 'edges' => []];
-
-        if ($name !== '') {
-            $rekomendasi = DummyDataProvider::rekomendasi($name, $useCascading);
-            $rekomNames = array_column($rekomendasi, 'Rekomendasi_Nama');
-            $graphData = DummyDataProvider::graph($name, $rekomNames);
-        }
-
-        $evaluasiHybrid = DummyDataProvider::evaluasi(true);
+        $dosenList       = DummyDataProvider::dosenList();
+        $evaluasiHybrid  = DummyDataProvider::evaluasi(true);
+        $totalPublikasi  = DummyDataProvider::totalPublikasi();
+        $totalRelasi     = DummyDataProvider::totalRelasi();
+        $totalSitasi     = DummyDataProvider::totalSitasi();
+        $fullGraphData   = DummyDataProvider::fullGraph($departemen ?: null);
+        $departemenList  = DummyDataProvider::departemenList();
 
         return view('dashboard', [
-            'dosenList' => $dosenList,
-            'rekomendasi' => $rekomendasi,
-            'graphData' => $graphData,
-            'currentName' => $name,
-            'useCascading' => $useCascading,
-            'evaluasiTerakhir' => $evaluasiHybrid,
-            'totalRekomendasiDicari' => 128,
+            'dosenList'          => $dosenList,
+            'evaluasiTerakhir'   => $evaluasiHybrid,
+            'totalPublikasi'     => $totalPublikasi,
+            'totalRelasi'        => $totalRelasi,
+            'totalSitasi'        => $totalSitasi,
+            'graphData'          => $fullGraphData,
+            'departemenList'     => $departemenList,
+            'selectedDepartemen' => $departemen,
         ]);
     }
 }
