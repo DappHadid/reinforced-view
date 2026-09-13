@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Hasil Evaluasi | REINFORCED')
 @section('page-title', 'Hasil Evaluasi')
@@ -12,7 +12,7 @@
 
     {{-- ============ METRIC COMPARISON ============ --}}
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        @foreach([['data' => $evaluasiStandar, 'badge' => 'text-blue-700 bg-blue-50'], ['data' => $evaluasiHybrid, 'badge' => 'text-violet-700 bg-violet-50']] as $card)
+        @foreach([['data' => $evaluasiStandar, 'badge' => 'text-primary-700 bg-primary-50'], ['data' => $evaluasiHybrid, 'badge' => 'text-primary-700 bg-primary-50']] as $card)
             @php $e = $card['data']; @endphp
             <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-5">

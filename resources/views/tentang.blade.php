@@ -23,7 +23,7 @@
 
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <p class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">Mode Standar</p>
+            <p class="text-xs font-bold text-primary-700 uppercase tracking-wide mb-2">Mode Standar</p>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Berbasis H-Index &amp; Struktur Graf</h3>
             <p class="text-sm text-slate-500 leading-relaxed">
                 Menentukan kandidat kolaborator berdasarkan kedekatan struktural dalam jaringan kolaborasi
@@ -32,7 +32,7 @@
             </p>
         </div>
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-2">Cascading Hybrid</p>
+            <p class="text-xs font-bold text-primary-700 uppercase tracking-wide mb-2">Cascading Hybrid</p>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Menambahkan Kemiripan Topik (S-BERT)</h3>
             <p class="text-sm text-slate-500 leading-relaxed">
                 Memprioritaskan kandidat dengan topik publikasi yang relevan menggunakan embedding semantik
@@ -64,20 +64,28 @@
         <h2 class="text-base font-bold text-slate-900 mb-4">Tim Riset</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                <div class="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold">BG</div>
+                <div class="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-primary-600 flex items-center justify-center text-white font-bold">BG</div>
                 <div>
                     <p class="text-sm font-bold text-slate-800">Bennart Dem Gunawan</p>
                     <p class="text-xs text-slate-500">Peneliti</p>
                 </div>
             </div>
             <div class="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                <div class="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold">KR</div>
+                <div class="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-primary-600 flex items-center justify-center text-white font-bold">KR</div>
                 <div>
                     <p class="text-sm font-bold text-slate-800">Kurnia Ramadhan Putra</p>
                     <p class="text-xs text-slate-500">Peneliti</p>
                 </div>
             </div>
         </div>
+    </section>
+
+    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+        <h2 class="text-base font-bold text-slate-900 mb-2">Atribusi &amp; Lisensi Aset</h2>
+        <p class="text-sm text-slate-500">
+            Aplikasi ini menggunakan ilustrasi grafis berlisensi:
+            <a href="https://storyset.com/business" target="_blank" rel="noopener noreferrer" class="text-primary-600 font-semibold hover:underline ml-1">Business illustrations by Storyset</a>.
+        </p>
     </section>
 
 @endsection

@@ -12,11 +12,40 @@ namespace App\Support;
 class DummyDataProvider
 {
     private const DEPARTEMEN = [
+        // Fakultas Ilmu Komputer (5 prodi)
         'Teknik Informatika',
         'Sistem Informasi',
-        'Teknik Elektro',
         'Ilmu Komputer',
+        'Teknologi Informasi',
+        'Keamanan Siber',
+        // Fakultas Teknik (4 prodi)
+        'Teknik Elektro',
         'Teknik Industri',
+        'Teknik Mesin',
+        'Teknik Sipil',
+        // Fakultas Sains dan Matematika (5 prodi)
+        'Matematika',
+        'Fisika',
+        'Statistika',
+        'Kimia',
+        'Biologi',
+    ];
+
+    private const FAKULTAS_MAP = [
+        'Teknik Informatika'  => 'Fakultas Ilmu Komputer',
+        'Sistem Informasi'    => 'Fakultas Ilmu Komputer',
+        'Ilmu Komputer'       => 'Fakultas Ilmu Komputer',
+        'Teknologi Informasi' => 'Fakultas Ilmu Komputer',
+        'Keamanan Siber'      => 'Fakultas Ilmu Komputer',
+        'Teknik Elektro'      => 'Fakultas Teknik',
+        'Teknik Industri'     => 'Fakultas Teknik',
+        'Teknik Mesin'        => 'Fakultas Teknik',
+        'Teknik Sipil'        => 'Fakultas Teknik',
+        'Matematika'          => 'Fakultas Sains dan Matematika',
+        'Fisika'              => 'Fakultas Sains dan Matematika',
+        'Statistika'          => 'Fakultas Sains dan Matematika',
+        'Kimia'               => 'Fakultas Sains dan Matematika',
+        'Biologi'             => 'Fakultas Sains dan Matematika',
     ];
 
     private const TOPIK = [
@@ -50,6 +79,110 @@ class DummyDataProvider
     {
         return self::DOSEN;
     }
+
+    public static function dosenListWithMeta(): array
+    {
+        // Avatar gradient pairs (from-color to-color) cycled by index
+        $gradients = [
+            ['from-sky-400', 'to-blue-600'],
+            ['from-violet-400', 'to-purple-600'],
+            ['from-emerald-400', 'to-teal-600'],
+            ['from-rose-400', 'to-pink-600'],
+            ['from-amber-400', 'to-orange-600'],
+            ['from-cyan-400', 'to-sky-600'],
+            ['from-fuchsia-400', 'to-violet-600'],
+            ['from-lime-400', 'to-green-600'],
+        ];
+
+        // 16 portrait images: image_0.jpeg … image_15.jpeg
+        $totalImages = 16;
+
+        $result = [];
+        foreach (self::DOSEN as $i => $dosen) {
+            $sid   = $dosen['sinta_id'];
+            $stat  = self::statistikFor($sid);
+            $seed  = self::seedFromString($sid);
+            $grad  = $gradients[$i % count($gradients)];
+            $topik = self::TOPIK[$seed % count(self::TOPIK)];
+
+            $prodi    = self::pick(self::DEPARTEMEN, $sid);
+            $fakultas = self::FAKULTAS_MAP[$prodi] ?? 'Lainnya';
+
+            $result[] = [
+                'nama'            => $dosen['nama'],
+                'nama_display'    => ucwords(strtolower($dosen['nama'])),
+                'sinta_id'        => $sid,
+                'prodi'           => $prodi,
+                'fakultas'        => $fakultas,
+                'topik_utama'     => $topik,
+                'h_index_scholar' => $stat['ns0__hasHIndexScholar'],
+                'total_publikasi' => $stat['ns0__hasPublicationScholar'],
+                'kolaborator'     => $stat['ns0__hasCollaborator'],
+                'avatar_from'     => $grad[0],
+                'avatar_to'       => $grad[1],
+                'initials'        => self::initials($dosen['nama']),
+                'avatar_image'    => 'images/image_'.($i % $totalImages).'.jpeg',
+            ];
+        }
+
+        return $result;
+    }
+
+    private static function initials(string $nama): string
+    {
+        $words = preg_split('/\s+/', trim($nama));
+        $out   = '';
+        foreach (array_slice($words, 0, 2) as $w) {
+            $out .= strtoupper(mb_substr($w, 0, 1));
+        }
+
+        return $out ?: '?';
+    }
+
+    public static function fakultasList(): array
+    {
+        return ['Fakultas Ilmu Komputer', 'Fakultas Teknik', 'Fakultas Sains dan Matematika'];
+    }
+
+    public static function prodiByFakultas(): array
+    {
+        $result = [];
+        foreach (self::FAKULTAS_MAP as $prodi => $fakultas) {
+            $result[$fakultas][] = $prodi;
+        }
+
+        return $result;
+    }
+
+    public static function totalPublikasi(): int
+    {
+        $total = 0;
+        foreach (self::DOSEN as $dosen) {
+            $total += count(self::publikasi($dosen['sinta_id']));
+        }
+
+        return $total;
+    }
+
+    public static function totalRelasi(): int
+    {
+        return count(self::fullGraph()['edges']);
+    }
+
+    public static function totalSitasi(): int
+    {
+        $total = 0;
+        foreach (self::DOSEN as $dosen) {
+            $stat = self::statistikFor($dosen['sinta_id']);
+            $total += (int) (
+                ($stat['ns0__hasPublicationScholar'] * $stat['ns0__hasAverageCitationScholar']) +
+                ($stat['ns0__hasPublicationScopus'] * $stat['ns0__hasAverageCitationScopus'])
+            );
+        }
+
+        return $total > 0 ? $total : 1420;
+    }
+
 
     public static function findDosenByName(string $name): ?array
     {
@@ -195,41 +328,93 @@ class DummyDataProvider
 
     public static function dosenDetail(string $sintaId): ?array
     {
-        $dosen = self::findDosenBySintaId($sintaId);
+        $dosenList = self::dosenListWithMeta();
+        $found = null;
+        foreach ($dosenList as $d) {
+            if ($d['sinta_id'] === $sintaId) {
+                $found = $d;
+                break;
+            }
+        }
 
-        if (! $dosen) {
-            return null;
+        if (! $found) {
+            $base = self::findDosenBySintaId($sintaId);
+            if (! $base) {
+                return null;
+            }
+            $stat = self::statistikFor($sintaId);
+            return array_merge([
+                'hasSintaID' => $base['sinta_id'],
+                'hasName' => $base['nama'],
+                'hasDepartment' => self::pick(self::DEPARTEMEN, $sintaId),
+                'fakultas' => 'Fakultas Ilmu Komputer',
+                'prodi' => self::pick(self::DEPARTEMEN, $sintaId),
+                'topik_utama' => self::TOPIK[self::seedFromString($sintaId) % count(self::TOPIK)],
+                'avatar_image' => 'images/image_0.jpeg',
+                'initials' => self::initials($base['nama']),
+                'avatar_from' => 'from-sky-400',
+                'avatar_to' => 'to-blue-600',
+                'hasAcademicAge' => 5 + (self::seedFromString($sintaId) % 25),
+            ], $stat);
         }
 
         $stat = self::statistikFor($sintaId);
 
         return array_merge([
-            'hasSintaID' => $dosen['sinta_id'],
-            'hasName' => $dosen['nama'],
-            'hasDepartment' => self::pick(self::DEPARTEMEN, $sintaId),
+            'hasSintaID'     => $found['sinta_id'],
+            'hasName'        => $found['nama'],
+            'hasDepartment'  => $found['prodi'],
+            'fakultas'       => $found['fakultas'],
+            'prodi'          => $found['prodi'],
+            'topik_utama'    => $found['topik_utama'],
+            'avatar_image'   => $found['avatar_image'],
+            'initials'       => $found['initials'],
+            'avatar_from'    => $found['avatar_from'],
+            'avatar_to'      => $found['avatar_to'],
             'hasAcademicAge' => 5 + (self::seedFromString($sintaId) % 25),
         ], $stat);
     }
 
     public static function publikasi(string $sintaId): array
     {
-        $rng = self::seededRandom(self::seedFromString($sintaId.'pub'));
-        $count = 4 + (self::seedFromString($sintaId) % 5);
         $dosen = self::findDosenBySintaId($sintaId);
-        $namaPendek = $dosen ? ucwords(strtolower(explode(' ', $dosen['nama'])[0])) : 'Peneliti';
-
+        
+        $count = 18 + (self::seedFromString($sintaId) % 10);
         $sumbers = ['Scopus', 'Google Scholar', 'Web of Science', 'SINTA'];
+        
+        $templateJudul = [
+            'Studi %s: Pendekatan Berbasis Graf untuk Kolaborasi Akademik',
+            'Optimasi Sistem Rekomendasi Peneliti Berbasis Algoritma %s',
+            'Analisis Jaringan Kolaborasi Multidisiplin Menggunakan Model %s',
+            'Penerapan %s dalam Pemetaan Kepakaran dan Publikasi Ilmiah',
+            'Evaluasi Kinerja Algoritma %s pada Dataset Graph Pengetahuan',
+            'Integrasi Metode %s untuk Deteksi Komunitas Riset Perguruan Tinggi',
+            'Arsitektur Terdistribusi Berbasis %s untuk Pemrosesan Big Data Sitasi',
+            'Pengembangan Visualisasi Interaktif %s pada Repositori Akademik',
+            'Peningkatan Akurasi Hybrid Matching Menggunakan %s dan Deep Learning',
+            'Studi Meta-Analisis Tren Riset %s dalam Ekosistem SINTA Indonesia',
+        ];
+
         $publikasi = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $topik = self::TOPIK[intdiv(self::seedFromString($sintaId).$i, 3) % count(self::TOPIK)];
-            $tahun = 2016 + ((self::seedFromString($sintaId) + $i * 3) % 9);
+            $topikIndex = (self::seedFromString($sintaId) + $i * 7) % count(self::TOPIK);
+            $topik = self::TOPIK[$topikIndex];
+            $tmpl = $templateJudul[$i % count($templateJudul)];
+            $judul = sprintf($tmpl, $topik);
+            
+            $tahun = 2025 - (($i * 2 + self::seedFromString($sintaId) % 3) % 10);
+            $sumber = $sumbers[($i + self::seedFromString($sintaId)) % count($sumbers)];
+            $sitasi = (self::seedFromString($sintaId . $i) % 45) + ($tahun > 2022 ? 2 : 12);
+            $doiSuffix = strtolower(self::slug($sintaId)) . '.' . ($i + 1);
 
             $publikasi[] = [
-                'judul' => "Studi $topik: Pendekatan Berbasis Graf untuk Kolaborasi Akademik ($namaPendek, ".($i + 1).')',
-                'tahun' => $tahun,
-                'doi' => '10.1000/'.strtolower(self::slug($sintaId)).'.'.($i + 1),
-                'sumber' => $sumbers[$i % count($sumbers)],
+                'judul'   => $judul,
+                'tahun'   => $tahun,
+                'doi'     => '10.1000/' . $doiSuffix,
+                'sumber'  => $sumber,
+                'sitasi'  => $sitasi,
+                'topik'   => $topik,
             ];
         }
 

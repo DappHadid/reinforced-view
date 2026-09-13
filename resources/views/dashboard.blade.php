@@ -1,57 +1,115 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard | REINFORCED')
-@section('page-title', 'Dashboard')
-@section('page-subtitle', 'Ringkasan jaringan kolaborasi & rekomendasi peneliti')
 
 @section('content')
 
-    {{-- ============ STAT CARDS ============ --}}
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-                <div class="h-11 w-11 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5.5 w-5.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <span class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">Aktif</span>
-            </div>
-            <p class="mt-4 text-3xl font-extrabold text-slate-900">{{ count($dosenList) }}</p>
-            <p class="text-sm text-slate-400 mt-1">Peneliti Terdaftar</p>
-        </div>
+    {{-- ============ HERO / WELCOME BANNER CARD ============ --}}
+    <section class="relative overflow-hidden rounded-3xl bg-[#FFF3E0] border border-[#FFE0B2] px-6 sm:px-8 md:px-10 py-6 sm:py-8 text-slate-800 shadow-lg shadow-orange-500/5">
+        {{-- Decorative background glow circles --}}
+        <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#FFE0B2]/50 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-1/3 -bottom-20 h-52 w-52 rounded-full bg-[#FFCC80]/40 blur-2xl pointer-events-none"></div>
 
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-                <div class="h-11 w-11 rounded-xl bg-violet-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5.5 w-5.5 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
+            {{-- Left Content --}}
+            <div class="max-w-lg lg:max-w-xl xl:max-w-2xl space-y-3 text-center md:text-left py-2 sm:py-4">
+                <div class="inline-flex items-center gap-2 rounded-full bg-[#FFE0B2] px-3.5 py-1 text-xs font-semibold text-[#E65100] border border-[#FFCC80]">
+                    <span class="h-2 w-2 rounded-full bg-[#F57C00] animate-pulse"></span>
+                    <span>Knowledge Graph &middot; Neo4j Live</span>
                 </div>
-            </div>
-            <p class="mt-4 text-3xl font-extrabold text-slate-900">{{ $totalRekomendasiDicari }}</p>
-            <p class="text-sm text-slate-400 mt-1">Rekomendasi Pernah Dicari</p>
-        </div>
 
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-                <div class="h-11 w-11 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5.5 w-5.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                </div>
-            </div>
-            <p class="mt-4 text-3xl font-extrabold text-slate-900">{{ number_format($evaluasiTerakhir['precision_at_5'] * 100, 1) }}%</p>
-            <p class="text-sm text-slate-400 mt-1">Precision@5 ({{ $evaluasiTerakhir['metode'] }})</p>
-        </div>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                    Selamat Datang di REINFORCED <span class="inline-block hover:rotate-12 transition-transform cursor-default">👋</span>
+                </h2>
 
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-                <div class="h-11 w-11 rounded-xl bg-rose-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5.5 w-5.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+                <p class="text-sm sm:text-base text-slate-700 font-normal leading-relaxed">
+                    Temukan rekan kolaborasi penelitian yang relevan dan strategis berbasis 
+                    <span class="font-semibold text-slate-900">Attributed Network Embedding (ANE)</span>. 
+                    Tingkatkan produktivitas publikasi dan luaskan jaringan riset ilmiah Anda.
+                </p>
+
+                <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                    <a href="{{ route('rekomendasi') }}" 
+                       class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4.5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-primary-700 hover:shadow-lg transition-all active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span>Cari Rekomendasi</span>
+                    </a>
+                    <a href="{{ route('dosen.index') }}" 
+                       class="inline-flex items-center gap-2 rounded-xl bg-white px-4.5 py-2.5 text-sm font-semibold text-slate-800 border border-slate-300 hover:bg-slate-50 transition-all shadow-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Direktori Peneliti</span>
+                    </a>
                 </div>
             </div>
-            <p class="mt-4 text-3xl font-extrabold text-slate-900">{{ number_format($evaluasiTerakhir['map_at_5'] * 100, 1) }}%</p>
-            <p class="text-sm text-slate-400 mt-1">MAP@5 ({{ $evaluasiTerakhir['metode'] }})</p>
+
+            {{-- Right Illustration (Storyset Animated SVG) --}}
+            <div class="relative shrink-0 flex items-center justify-center w-full md:w-auto md:-my-4 md:-mr-2">
+                <div class="w-60 sm:w-72 md:w-80 lg:w-[360px] max-w-full drop-shadow-xl flex items-center justify-center md:justify-end">
+                    <img src="{{ asset('images/research-paper-animate.svg') }}" 
+                         alt="Research Paper Illustration by Storyset" 
+                         class="w-full h-auto object-contain max-h-60 sm:max-h-72 md:max-h-[290px] lg:max-h-[320px] hover:scale-[1.02] transition-transform duration-300">
+                </div>
+            </div>
         </div>
     </section>
 
-    {{-- ============ TENTANG REINFORCED (statis) ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+    {{-- ============ STAT CARDS ============ --}}
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        {{-- Card 1: Peneliti Terdaftar --}}
+        <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
+            <div class="min-w-0 flex-1 z-10">
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ count($dosenList) }}</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Peneliti Terdaftar</p>
+            </div>
+            <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
+                <img src="{{ asset('images/Partnership-rafiki.svg') }}" 
+                     alt="Ilustrasi Peneliti Terdaftar" 
+                     class="w-full h-full object-contain scale-115 sm:scale-120 group-hover:scale-125 transition-transform duration-300">
+            </div>
+        </div>
+
+        {{-- Card 2: Total Publikasi --}}
+        <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
+            <div class="min-w-0 flex-1 z-10">
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalPublikasi ?? 108) }}</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Total Publikasi</p>
+            </div>
+            <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
+                <img src="{{ asset('images/Online document-rafiki.svg') }}" 
+                     alt="Ilustrasi Total Publikasi" 
+                     class="w-full h-full object-contain scale-115 sm:scale-120 group-hover:scale-125 transition-transform duration-300">
+            </div>
+        </div>
+
+        {{-- Card 3: Relasi Kolaborasi --}}
+        <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
+            <div class="min-w-0 flex-1 z-10">
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalRelasi ?? 36) }}</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Relasi Kolaborasi</p>
+            </div>
+            <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
+                <img src="{{ asset('images/Connected world-rafiki.svg') }}" 
+                     alt="Ilustrasi Relasi Kolaborasi" 
+                     class="w-full h-full object-contain scale-115 sm:scale-120 group-hover:scale-125 transition-transform duration-300">
+            </div>
+        </div>
+
+        {{-- Card 4: Total Sitasi Ilmiah --}}
+        <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
+            <div class="min-w-0 flex-1 z-10">
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalSitasi ?? 1420) }}</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Total Sitasi Ilmiah</p>
+            </div>
+            <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
+                <img src="{{ asset('images/Research paper-amico.svg') }}" 
+                     alt="Ilustrasi Total Sitasi Ilmiah" 
+                     class="w-full h-full object-contain scale-115 sm:scale-120 group-hover:scale-125 transition-transform duration-300">
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ TENTANG REINFORCED ============ --}}
+    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-xs">
         <div class="flex items-start justify-between gap-4 flex-wrap">
             <div class="max-w-2xl">
                 <h2 class="text-base font-bold text-slate-900">Apa itu REINFORCED?</h2>
@@ -65,7 +123,7 @@
                     dan kemiripan topik publikasi.
                 </p>
             </div>
-            <a href="{{ route('rekomendasi') }}" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors whitespace-nowrap">
+            <a href="{{ route('rekomendasi') }}" class="inline-flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-colors whitespace-nowrap">
                 Cari Rekomendasi
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
@@ -73,203 +131,96 @@
 
         <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="rounded-xl border border-slate-200 p-4">
-                <p class="text-xs font-bold text-blue-700 uppercase tracking-wide">Mode Standar</p>
+                <p class="text-xs font-bold text-primary-700 uppercase tracking-wide">Mode Standar</p>
                 <p class="text-sm text-slate-500 mt-1">Rekomendasi berbasis H-Index &amp; struktur graf kolaborasi.</p>
             </div>
             <div class="rounded-xl border border-slate-200 p-4">
-                <p class="text-xs font-bold text-violet-700 uppercase tracking-wide">Cascading Hybrid</p>
+                <p class="text-xs font-bold text-primary-700 uppercase tracking-wide">Cascading Hybrid</p>
                 <p class="text-sm text-slate-500 mt-1">Menambahkan prioritas kemiripan topik via S-BERT (semantic similarity judul publikasi).</p>
             </div>
         </div>
     </section>
 
-    {{-- ============ SEARCH / FORM ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-        <div class="flex items-center gap-2 mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <h2 class="text-base font-bold text-slate-900">Preview Cepat Rekomendasi</h2>
-        </div>
-
-        <form action="{{ route('dashboard') }}" method="GET" class="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-end">
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Peneliti Target</label>
-                <select name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition">
-                    <option value="">— Pilih Peneliti —</option>
-                    @foreach($dosenList as $dosen)
-                        <option value="{{ $dosen['nama'] }}" {{ strcasecmp($currentName, $dosen['nama']) === 0 ? 'selected' : '' }}>
-                            {{ $dosen['nama'] }} &middot; SINTA {{ $dosen['sinta_id'] }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Metode</label>
-                <div class="flex rounded-xl border border-slate-200 bg-slate-50 p-1 text-sm font-medium">
-                    <label class="cursor-pointer">
-                        <input type="radio" name="use_cascading" value="false" class="peer sr-only" {{ !$useCascading ? 'checked' : '' }}>
-                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-blue-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Standard</span>
-                    </label>
-                    <label class="cursor-pointer">
-                        <input type="radio" name="use_cascading" value="true" class="peer sr-only" {{ $useCascading ? 'checked' : '' }}>
-                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-blue-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Hybrid</span>
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Temukan
-            </button>
-        </form>
-    </section>
-
-    @if($currentName !== '')
-        <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
-            {{-- ============ GRAPH ============ --}}
-            <section class="xl:col-span-3 rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900">Visualisasi Jaringan</h2>
-                        <p class="text-xs text-slate-400">Jalur kolaborasi menuju rekomendasi untuk {{ strtoupper($currentName) }}</p>
-                    </div>
-                    <div class="hidden sm:flex items-center gap-4 text-[11px] font-medium text-slate-500">
-                        <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#1f77b4]"></span>Target</span>
-                        <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#ff9800]"></span>Rekomendasi</span>
-                        <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#4caf50]"></span>Penghubung</span>
-                    </div>
-                </div>
-                <div class="relative flex-1 min-h-[420px] bg-slate-900">
-                    <div id="network-graph" class="absolute inset-0"></div>
-                    @if(empty($graphData['nodes']))
-                        <div class="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
-                            Tidak ada data graf untuk ditampilkan.
-                        </div>
-                    @endif
-                </div>
-            </section>
-
-            {{-- ============ RECOMMENDATION LIST ============ --}}
-            <section class="xl:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col">
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900">Top Rekomendasi</h2>
-                        <p class="text-xs text-slate-400">Untuk {{ strtoupper($currentName) }}</p>
-                    </div>
-                    <a href="{{ route('rekomendasi', ['name' => $currentName, 'use_cascading' => $useCascading ? 'true' : 'false']) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
-                        Lihat detail &rarr;
-                    </a>
-                </div>
-
-                <div class="flex-1 overflow-y-auto max-h-[420px] divide-y divide-slate-100">
-                    @forelse($rekomendasi as $i => $r)
-                        @php
-                            $skor = $r['Skor Kemiripan'] ?? 0;
-                            $pct = max(0, min(100, round($skor * 100)));
-                            $stat = $r['Detail_Statistik'] ?? [];
-                            $pubs = $r['Detail_Publikasi'] ?? [];
-                        @endphp
-                        <div class="px-6 py-4 hover:bg-slate-50 transition-colors">
-                            <div class="flex items-start gap-3">
-                                <div class="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
-                                    {{ $i + 1 }}
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <p class="text-sm font-semibold text-slate-900 truncate">{{ $r['Rekomendasi_Nama'] }}</p>
-                                        <span class="shrink-0 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">{{ $pct }}%</span>
-                                    </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">SINTA: {{ $r['Rekomendasi_SINTA_ID'] }} &middot; {{ count($pubs) }} publikasi</p>
-
-                                    <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                                        <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600" style="width: {{ $pct }}%"></div>
-                                    </div>
-
-                                    @if(!empty($stat))
-                                        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
-                                            <div class="rounded-lg bg-slate-50 py-1.5">
-                                                <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasHIndexScholar'] ?? '-' }}</p>
-                                                <p class="text-[10px] text-slate-400">H-Index</p>
-                                            </div>
-                                            <div class="rounded-lg bg-slate-50 py-1.5">
-                                                <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasCollaborator'] ?? '-' }}</p>
-                                                <p class="text-[10px] text-slate-400">Kolaborator</p>
-                                            </div>
-                                            <div class="rounded-lg bg-slate-50 py-1.5">
-                                                <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasPublicationScholar'] ?? '-' }}</p>
-                                                <p class="text-[10px] text-slate-400">Publikasi</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="px-6 py-10 text-center text-sm text-slate-400">
-                            Tidak ditemukan rekomendasi untuk peneliti ini.
-                        </div>
-                    @endforelse
-                </div>
-            </section>
-        </div>
-    @else
-        {{-- ============ EMPTY / DIRECTORY STATE ============ --}}
-        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+    {{-- ============ OVERALL VISUALISASI JARINGAN (Replacing Quick Preview & Directory) ============ --}}
+    <section class="rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        {{-- Section Header & Department Filter Form --}}
+        <div class="p-6 border-b border-slate-100 bg-white">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-base font-bold text-slate-900">Direktori Peneliti</h2>
-                    <p class="text-xs text-slate-400">Pilih salah satu peneliti di atas untuk melihat rekomendasi</p>
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 rounded-xl bg-primary-50 text-primary-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Overall Visualisasi Jaringan Kolaborasi</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">
+                                {{ count($graphData['nodes'] ?? []) }} peneliti terdaftar &bull; {{ count($graphData['edges'] ?? []) }} relasi kolaborasi ilmiah
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <span class="text-xs font-semibold text-slate-400">{{ count($dosenList) }} total</span>
+
+                {{-- Department Filter Form & Controls --}}
+                <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="relative min-w-[220px]">
+                        <select name="departemen" 
+                                onchange="this.form.submit()" 
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-3.5 pr-8 py-2 text-xs font-semibold text-slate-700 hover:bg-white focus:bg-white focus:outline-none focus:border-primary-500 focus:ring-3 focus:ring-primary-50 transition-colors cursor-pointer appearance-none">
+                            <option value="">Semua Departemen</option>
+                            @foreach($departemenList as $dept)
+                                <option value="{{ $dept }}" {{ $selectedDepartemen === $dept ? 'selected' : '' }}>{{ $dept }}</option>
+                            @endforeach
+                        </select>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+
+                    {{-- Toolbar Zoom Controls --}}
+                    <div class="flex items-center gap-1 shrink-0 self-end sm:self-auto">
+                        <button type="button" id="graph-zoom-in" title="Perbesar Graf" class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button type="button" id="graph-zoom-out" title="Perkecil Graf" class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button type="button" id="graph-reset" title="Fokus Ulang" class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
-                <table class="w-full text-sm">
-                    <thead class="sticky top-0">
-                        <tr class="bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                            <th class="px-6 py-3">#</th>
-                            <th class="px-6 py-3">Nama Peneliti</th>
-                            <th class="px-6 py-3">SINTA ID</th>
-                            <th class="px-6 py-3 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($dosenList as $i => $dosen)
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-3 text-slate-400">{{ $i + 1 }}</td>
-                                <td class="px-6 py-3 font-medium text-slate-800">{{ $dosen['nama'] }}</td>
-                                <td class="px-6 py-3 text-slate-500">{{ $dosen['sinta_id'] }}</td>
-                                <td class="px-6 py-3 text-right">
-                                    <a href="{{ route('dashboard', ['name' => $dosen['nama'], 'use_cascading' => $useCascading ? 'true' : 'false']) }}"
-                                       class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800">
-                                        Lihat Rekomendasi
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-10 text-center text-slate-400">Belum ada data peneliti.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        </div>
+
+        {{-- Overall Graph Canvas Container --}}
+        <div class="relative flex-1 min-h-[580px] bg-slate-50 overflow-hidden">
+            <div id="network-graph" class="absolute inset-0 z-10"></div>
+            
+            @if(empty($graphData['nodes']))
+                <div class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs">
+                    Tidak ada data peneliti untuk departemen ini.
+                </div>
+            @endif
+
+            {{-- Graph Hint & Legend Footer Overlay --}}
+            <div class="absolute bottom-4 left-4 right-4 z-20 flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-200 text-xs text-slate-600 shadow-xs">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span class="text-[11px] font-medium">Klik pada simpul peneliti mana saja untuk membuka halaman **Profil Dosen Detail** secara langsung.</span>
+                </div>
+
+                <div class="flex items-center gap-3 text-[10px] font-semibold shrink-0">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Peneliti Aktif</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary-600"></span>Relasi Terhubung</span>
+                </div>
             </div>
-        </section>
-    @endif
+        </div>
+    </section>
 
 @endsection
 
 @push('scripts')
 <script>
     const graphData = @json($graphData ?? ['nodes' => [], 'edges' => []]);
-
-    function groupColor(group) {
-        switch (group) {
-            case 'target': return { background: '#1f77b4', border: '#155a8a', highlight: { background: '#3b93d6', border: '#155a8a' } };
-            case 'recommendation': return { background: '#ff9800', border: '#c26f00', highlight: { background: '#ffb04d', border: '#c26f00' } };
-            default: return { background: '#4caf50', border: '#357a38', highlight: { background: '#6fc873', border: '#357a38' } };
-        }
-    }
+    const dosenBaseUrl = @json(url('/dosen'));
 
     const container = document.getElementById('network-graph');
 
@@ -277,21 +228,30 @@
         const nodes = new vis.DataSet(graphData.nodes.map(n => ({
             id: n.id,
             label: n.label,
-            color: groupColor(n.group),
-            font: { color: '#e2e8f0', size: 13, face: 'Inter' },
-            shape: n.group === 'target' ? 'star' : 'dot',
-            size: n.group === 'target' ? 22 : (n.group === 'recommendation' ? 16 : 12),
+            sintaId: n.sinta_id,
+            title: n.department || 'Peneliti REINFORCED',
+            color: { 
+                background: '#10b981', 
+                border: '#059669', 
+                highlight: { background: '#059669', border: '#047857' } 
+            },
+            font: { 
+                color: '#1e293b', 
+                size: 11, 
+                face: 'Inter, sans-serif',
+                strokeWidth: 2,
+                strokeColor: '#ffffff'
+            },
+            shape: 'dot',
+            size: 13,
             borderWidth: 2,
         })));
 
         const edges = new vis.DataSet(graphData.edges.map(e => ({
             from: e.from,
             to: e.to,
-            label: e.label,
-            arrows: 'to',
-            color: { color: e.label === 'recommended' ? '#ff9800' : '#475569', opacity: 0.8 },
-            font: { color: '#94a3b8', size: 9, strokeWidth: 0, align: 'middle' },
-            width: e.label === 'recommended' ? 2.5 : 1,
+            color: { color: '#94a3b8', opacity: 0.6 },
+            width: 1.2,
             smooth: { type: 'continuous' },
         })));
 
@@ -300,15 +260,52 @@
             height: '100%',
             width: '100%',
             physics: {
-                barnesHut: { gravitationalConstant: -12000, springLength: 140, springConstant: 0.04 },
-                stabilization: { iterations: 150 },
+                barnesHut: { 
+                    gravitationalConstant: -8000, 
+                    centralGravity: 0.25,
+                    springLength: 100, 
+                    springConstant: 0.03 
+                },
+                stabilization: { iterations: 200 },
             },
-            interaction: { hover: true, tooltipDelay: 100 },
-            nodes: { shadow: true },
+            interaction: { 
+                hover: true, 
+                tooltipDelay: 100,
+                zoomView: true,
+                dragView: true
+            },
+            nodes: { shadow: false },
             edges: { shadow: false },
         });
 
-        network.once('stabilizationIterationsDone', () => network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } }));
+        network.once('stabilizationIterationsDone', () => {
+            network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+        });
+
+        // Click node action -> Navigate to lecturer detail profile
+        network.on('click', (params) => {
+            if (params.nodes && params.nodes.length > 0) {
+                const node = nodes.get(params.nodes[0]);
+                if (node && node.sintaId) {
+                    window.location.href = `${dosenBaseUrl}/${node.sintaId}`;
+                }
+            }
+        });
+
+        // Controls
+        document.getElementById('graph-zoom-in')?.addEventListener('click', () => {
+            const scale = network.getScale();
+            network.moveTo({ scale: scale * 1.25, animation: { duration: 200 } });
+        });
+
+        document.getElementById('graph-zoom-out')?.addEventListener('click', () => {
+            const scale = network.getScale();
+            network.moveTo({ scale: scale * 0.75, animation: { duration: 200 } });
+        });
+
+        document.getElementById('graph-reset')?.addEventListener('click', () => {
+            network.fit({ animation: { duration: 350 } });
+        });
     }
 </script>
 @endpush
