@@ -68,7 +68,7 @@
     {{-- ============ RIWAYAT PENILAIAN ============ --}}
     <div class="mt-12 mb-4">
         <h2 class="text-lg font-bold text-slate-900">Riwayat Penilaian Pengguna</h2>
-        <p class="text-sm text-slate-500">Daftar evaluasi kualitas rekomendasi yang diberikan oleh responden.</p>
+        <p class="text-sm text-slate-500">Daftar evaluasi kualitas rekomendasi yang diberikan pengguna.</p>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
@@ -76,7 +76,6 @@
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
                     <tr>
-                        <th class="px-6 py-4">Responden</th>
                         <th class="px-6 py-4">Metode</th>
                         <th class="px-6 py-4">Target Peneliti</th>
                         <th class="px-6 py-4">Rekomendasi Dinilai</th>
@@ -89,7 +88,6 @@
                         @if(isset($rekap['rekomendasi']) && is_array($rekap['rekomendasi']))
                             @foreach($rekap['rekomendasi'] as $rek)
                                 <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4 font-medium text-slate-900">{{ $rek['responden'] ?? 'Responden 1' }}</td>
                                     <td class="px-6 py-4">
                                         @if(($rek['metode'] ?? '') == 'Cascading Hybrid')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
@@ -115,8 +113,8 @@
                         @endif
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">
-                                Belum ada data penilaian dari responden.
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+                                Belum ada data penilaian.
                             </td>
                         </tr>
                     @endforelse

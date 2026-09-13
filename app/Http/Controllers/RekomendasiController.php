@@ -59,7 +59,6 @@ class RekomendasiController extends Controller
             'komentar'             => 'nullable|string|max:1000',
             'name'                 => 'required|string',
             'use_cascading'        => 'nullable|string',
-            'responden'            => 'required|string|max:100',
         ]);
 
         try {
@@ -77,7 +76,6 @@ class RekomendasiController extends Controller
                 ],
                 'komentar' => $validated['komentar'] ?? '',
                 'metode'   => $metode,
-                'responden'=> $validated['responden'],
             ]);
 
             $message = $response->successful()
