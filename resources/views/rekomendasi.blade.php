@@ -1,252 +1,304 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Rekomendasi Kolaborasi</title>
-    <!-- Include Vis.js -->
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <style>
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background: #eee; }
-        .container { max-width: 1000px; margin: auto; }
-        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
-        .form-group { margin-bottom: 15px; }
-        #network-graph {
-            width: 100%;
-            height: 600px;
-            border: 1px solid lightgray;
-            background-color: #ffffff;
-            margin-top: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-<div class="container">
-    <h1>Halaman Rekomendasi Dosen</h1>
-    
-    <form action="/rekomendasi" method="GET" style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
-        <div class="form-group">
-            <label><strong>Pilih Dosen Target:</strong></label><br>
-            <select name="name" style="width: 100%; padding: 8px; margin-top: 5px;">
-                @foreach($dosenList as $dosen)
-                    <option value="{{ $dosen['nama'] }}" {{ $currentName == $dosen['nama'] ? 'selected' : '' }}>
-                        {{ $dosen['nama'] }} (SINTA: {{ $dosen['sinta_id'] }})
-                    </option>
-                @endforeach
-            </select>
+@section('title', 'Cari Rekomendasi | REINFORCED')
+@section('page-title', 'Cari Rekomendasi')
+@section('page-subtitle', 'Temukan kandidat kolaborator penelitian berdasarkan jaringan &amp; kemiripan topik')
+
+@section('content')
+
+    {{-- ============ SEARCH FORM ============ --}}
+    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-center gap-2 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h2 class="text-base font-bold text-slate-900">Cari Kolaborator</h2>
         </div>
 
-        <div class="form-group">
-            <label><strong>Metode Algoritma:</strong></label><br>
-            <label style="margin-right: 20px; display: inline-block; margin-top: 5px;">
-                <input type="radio" name="use_cascading" value="false" {{ !$useCascading ? 'checked' : '' }}> 
-                Standar (H-Index & Graf)
-            </label>
-            <label style="display: inline-block; margin-top: 5px;">
-                <input type="radio" name="use_cascading" value="true" {{ $useCascading ? 'checked' : '' }}> 
-                Cascading Hybrid (S-BERT)
-            </label>
-        </div>
-
-        <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Cari Rekomendasi</button>
-    </form>
-
-    <h2>Hasil Pencarian untuk: {{ $currentName }}</h2>
-
-    @if(count($rekomendasi) > 0)
-        <!-- TEMPAT GRAFIK -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <h3 style="margin: 0;">Grafik Relasi Jaringan (Interactive)</h3>
-            <div style="display: flex; gap: 8px;">
-                <button id="btn-zoom-in" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Zoom In (+)</button>
-                <button id="btn-zoom-out" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Zoom Out (-)</button>
-                <button id="btn-fit-graph" style="padding: 6px 12px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">⤢ Fit ke Layar</button>
+        <form action="{{ route('rekomendasi') }}" method="GET" class="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-end">
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Peneliti Target</label>
+                <select name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 focus:outline-none transition">
+                    <option value="">-- Pilih Peneliti --</option>
+                    @foreach($dosenList as $dosen)
+                        <option value="{{ $dosen['nama'] }}" {{ strcasecmp($currentName, $dosen['nama']) === 0 ? 'selected' : '' }}>
+                            {{ $dosen['nama'] }} &middot; SINTA {{ $dosen['sinta_id'] }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
-        </div>
-        
-        <!-- LEGEND -->
-        <div style="margin-bottom: 10px; display: flex; gap: 15px; font-size: 13px; background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb;">
-            <strong>Keterangan:</strong>
-            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #FEE2E2; border: 2px solid #EF4444; border-radius: 3px;"></div> Dosen Target</span>
-            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #DCFCE7; border: 2px solid #22C55E; border-radius: 3px;"></div> Dosen Rekomendasi</span>
-            <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 14px; height: 14px; background: #E0F2FE; border: 2px solid #38BDF8; border-radius: 3px;"></div> Dosen Perantara (Koneksi)</span>
-        </div>
 
-        <div id="network-graph"><div style="padding: 20px; color: gray;">Memuat grafik relasi...</div></div>
-        
-        <h3>Tabel Rekomendasi</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Peringkat</th>
-                    <th>Nama Rekomendasi</th>
-                    <th>SINTA ID</th>
-                    <th>Skor Kemiripan (ANE)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($rekomendasi as $index => $item)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $item['Rekomendasi_Nama'] }}</td>
-                    <td>{{ $item['Rekomendasi_SINTA_ID'] }}</td>
-                    <td>{{ round($item['Skor Kemiripan'], 4) }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Metode Algoritma</label>
+                <div class="flex rounded-xl border border-slate-200 bg-slate-50 p-1 text-sm font-medium">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="use_cascading" value="false" class="peer sr-only" {{ !$useCascading ? 'checked' : '' }}>
+                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Standar</span>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="use_cascading" value="true" class="peer sr-only" {{ $useCascading ? 'checked' : '' }}>
+                        <span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Cascading Hybrid</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Cari Rekomendasi
+            </button>
+        </form>
+    </section>
+
+    @if($currentName !== '')
+        {{-- ============ GRAPH ============ --}}
+        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">Visualisasi Jaringan Rekomendasi</h2>
+                    <p class="text-xs text-slate-400">Jalur kolaborasi untuk {{ strtoupper($currentName) }}</p>
+                </div>
+                <div class="hidden sm:flex items-center gap-4 text-[11px] font-medium text-slate-500">
+                    <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#1f77b4]"></span>Target</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#ff9800]"></span>Rekomendasi</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-[#4caf50]"></span>Penghubung</span>
+                </div>
+            </div>
+            <div class="relative min-h-[420px] bg-slate-900">
+                <div id="network-graph" class="absolute inset-0"></div>
+            </div>
+        </section>
+
+        {{-- ============ RECOMMENDATION TABLE ============ --}}
+        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100">
+                <h2 class="text-base font-bold text-slate-900">Top {{ count($rekomendasi) }} Rekomendasi Kolaborator</h2>
+                <p class="text-xs text-slate-400">Untuk {{ strtoupper($currentName) }} &middot; Metode {{ $useCascading ? 'Cascading Hybrid' : 'Standar' }}</p>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+                @forelse($rekomendasi as $i => $r)
+                    @php
+                        $skor = $r['Skor Kemiripan'] ?? 0;
+                        $pct = max(0, min(100, round($skor * 100)));
+                        $stat = $r['Detail_Statistik'] ?? [];
+                        $pubs = $r['Detail_Publikasi'] ?? [];
+                        $modalId = 'pub-modal-'.$i;
+                    @endphp
+                    <div class="px-6 py-5">
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                            <div class="flex items-center gap-3 lg:w-64 shrink-0">
+                                <div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold">
+                                    {{ $i + 1 }}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-slate-900 truncate">{{ $r['Rekomendasi_Nama'] }}</p>
+                                    <p class="text-xs text-slate-400">SINTA: {{ $r['Rekomendasi_SINTA_ID'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div class="rounded-lg bg-slate-50 py-2 text-center">
+                                    <p class="text-sm font-bold text-slate-800">{{ $pct }}%</p>
+                                    <p class="text-[10px] text-slate-400">Skor Kemiripan</p>
+                                </div>
+                                <div class="rounded-lg bg-slate-50 py-2 text-center">
+                                    <p class="text-sm font-bold text-slate-800">{{ $stat['ns0__hasHIndexScholar'] ?? '-' }}</p>
+                                    <p class="text-[10px] text-slate-400">H-Index</p>
+                                </div>
+                                <div class="rounded-lg bg-slate-50 py-2 text-center">
+                                    <p class="text-sm font-bold text-slate-800">{{ $stat['ns0__hasCollaborator'] ?? '-' }}</p>
+                                    <p class="text-[10px] text-slate-400">Kolaborator</p>
+                                </div>
+                                <div class="rounded-lg bg-slate-50 py-2 text-center">
+                                    <p class="text-sm font-bold text-slate-800">{{ count($pubs) }}</p>
+                                    <p class="text-[10px] text-slate-400">Publikasi</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button" onclick="document.getElementById('{{ $modalId }}').showModal()"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                    Detail
+                                </button>
+                                @php
+                                    $rekNameLower = strtolower(trim($r['Rekomendasi_Nama']));
+                                    $hasEvaluatedThis = in_array($rekNameLower, $evaluatedRekomendasi);
+                                @endphp
+                                @if($hasEvaluatedThis)
+                                    <button type="button" disabled
+                                        class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                        Dinilai
+                                    </button>
+                                @else
+                                    <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
+                                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        Beri Nilai
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="mt-3 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-primary-600" style="width: {{ $pct }}%"></div>
+                        </div>
+                    </div>
+
+                    {{-- ===== Modal: Detail Publikasi ===== --}}
+                    <dialog id="{{ $modalId }}" class="m-auto rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-2xl backdrop:bg-slate-900/50">
+                        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">{{ $r['Rekomendasi_Nama'] }}</h3>
+                                <p class="text-xs text-slate-400">Daftar Publikasi &amp; Perbandingan Atribut</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('{{ $modalId }}').close()" class="text-slate-400 hover:text-slate-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <div class="px-6 py-4 max-h-96 overflow-y-auto space-y-4">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 mb-2">Perbandingan Atribut</p>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div class="rounded-lg bg-slate-50 py-2">
+                                        <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasHIndexScholar'] ?? '-' }}/{{ $stat['ns0__hasHIndexScopus'] ?? '-' }}/{{ $stat['ns0__hasHIndexWos'] ?? '-' }}</p>
+                                        <p class="text-[10px] text-slate-400">H-Index (Sch/Scp/WoS)</p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-50 py-2">
+                                        <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasPublicationScholar'] ?? '-' }}</p>
+                                        <p class="text-[10px] text-slate-400">Total Publikasi</p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-50 py-2">
+                                        <p class="text-xs font-bold text-slate-800">{{ $stat['ns0__hasDepartment'] ?? '-' }}</p>
+                                        <p class="text-[10px] text-slate-400">Departemen</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 mb-2">Judul Publikasi ({{ count($pubs) }})</p>
+                                <ul class="space-y-1.5">
+                                    @foreach($pubs as $judul)
+                                        <li class="text-xs text-slate-600 flex items-start gap-2">
+                                            <span class="text-slate-300 mt-0.5">&bull;</span>
+                                            <span>{{ $judul }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="px-6 py-3 border-t border-slate-100 text-right">
+                            <button type="button" onclick="document.getElementById('{{ $modalId }}').close()" class="rounded-lg px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50">Tutup</button>
+                        </div>
+                    </dialog>
+
+                    {{-- ===== Modal: Form Penilaian ===== --}}
+                    <dialog id="rating-{{ $modalId }}" class="m-auto rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-lg backdrop:bg-slate-900/50">
+                        <form action="{{ route('rekomendasi.penilaian') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="rekomendasi_sinta_id" value="{{ $r['Rekomendasi_SINTA_ID'] }}">
+                            <input type="hidden" name="rekomendasi_nama" value="{{ $r['Rekomendasi_Nama'] }}">
+                            <input type="hidden" name="name" value="{{ $currentName }}">
+                            <input type="hidden" name="use_cascading" value="{{ $useCascading ? 'true' : 'false' }}">
+
+                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900">Nilai Rekomendasi</h3>
+                                    <p class="text-xs text-slate-400">{{ $r['Rekomendasi_Nama'] }}</p>
+                                </div>
+                                <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').close()" class="text-slate-400 hover:text-slate-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+
+                            <div class="px-6 py-4 space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-2">Rating Kualitas Rekomendasi</label>
+                                    <div class="flex items-center flex-row-reverse justify-end gap-2 [&>label:hover]:text-amber-300 [&>label:hover~label]:text-amber-300">
+                                        @for($star = 5; $star >= 1; $star--)
+                                            <input type="radio" id="star-{{ $modalId }}-{{ $star }}" name="rating" value="{{ $star }}" class="peer sr-only" {{ $star === 5 ? 'checked' : '' }} required>
+                                            <label for="star-{{ $modalId }}-{{ $star }}" class="cursor-pointer text-slate-200 peer-checked:text-amber-400 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Komentar (opsional)</label>
+                                    <textarea name="komentar" rows="3" placeholder="Tulis catatan mengenai relevansi rekomendasi ini..."
+                                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 focus:outline-none transition"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                                <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').close()" class="rounded-lg px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50">Batal</button>
+                                <button type="submit" class="rounded-lg bg-primary-600 hover:bg-primary-700 px-4 py-2 text-xs font-semibold text-white transition-colors">Simpan Penilaian</button>
+                            </div>
+                        </form>
+                    </dialog>
+                @empty
+                    <div class="px-6 py-10 text-center text-sm text-slate-400">
+                        Tidak ditemukan rekomendasi untuk peneliti ini.
+                    </div>
+                @endforelse
+            </div>
+        </section>
     @else
-        <p style="color: red;">Tidak ada data rekomendasi yang ditemukan untuk dosen ini.</p>
+        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm p-10 text-center">
+            <p class="text-sm text-slate-400">Pilih peneliti target di atas untuk melihat rekomendasi kolaborator.</p>
+        </section>
     @endif
 
-</div>
+@endsection
 
-@if(count($rekomendasi) > 0)
+@push('scripts')
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const targetName = "{{ $currentName }}";
-        const rekomendasiData = @json($rekomendasi);
-        const rekomNames = rekomendasiData.map(item => item.Rekomendasi_Nama).join(",");
+    const graphData = @json($graphData ?? ['nodes' => [], 'edges' => []]);
 
-        if (rekomNames.length > 0) {
-            const container = document.getElementById('network-graph');
-
-            fetch(`/graph-data?target_name=${encodeURIComponent(targetName)}&rekom_names=${encodeURIComponent(rekomNames)}`)
-                .then(res => res.json())
-                .then(response => {
-                    if (response.status === 'success') {
-                        container.innerHTML = ''; 
-                        
-                        const nodes = new vis.DataSet(response.data.nodes.map(n => {
-                            let bg = '#E0F2FE'; 
-                            let border = '#38BDF8';
-                            let fontColor = '#1E293B';
-                            let size = 18;
-                            let borderWidth = 2;
-                            
-                            if (n.group === 'target') {
-                                bg = '#FEE2E2';
-                                border = '#EF4444'; 
-                                size = 28;
-                                borderWidth = 3;
-                            } else if (n.group === 'recommendation') {
-                                bg = '#DCFCE7'; // light green
-                                border = '#22C55E'; // green
-                                size = 24;
-                                borderWidth = 3;
-                            }
-                            
-                            return {
-                                id: n.id,
-                                label: n.label,
-                                group: n.group,
-                                color: { 
-                                    background: bg, 
-                                    border: border,
-                                    hover: { background: border, border: bg },
-                                    highlight: { background: bg, border: '#0F172A' }
-                                },
-                                shape: 'box',
-                                margin: { top: 10, right: 15, bottom: 10, left: 15 },
-                                borderWidth: borderWidth,
-                                font: { 
-                                    size: size - 4, // menyesuaikan ukuran font 
-                                    color: fontColor, 
-                                    face: 'Inter, sans-serif',
-                                    bold: n.group === 'target' ? true : false
-                                },
-                                shadow: { enabled: true, color: 'rgba(0,0,0,0.15)', size: 10, x: 2, y: 3 },
-                                title: n.group === 'target' ? 'Dosen Target: ' + n.label : (n.group === 'recommendation' ? 'Rekomendasi: ' + n.label : 'Koneksi: ' + n.label)
-                            };
-                        }));
-                        
-                        // Parse edges
-                        const edges = new vis.DataSet(response.data.edges.map(e => {
-                            const isRecommended = (e.label === 'recommended');
-                            return {
-                                from: e.from,
-                                to: e.to,
-                                label: e.label,
-                                font: { align: 'top', size: 11, color: '#64748B', face: 'Inter, sans-serif', background: 'rgba(255,255,255,0.9)' },
-                                color: { color: isRecommended ? '#CBD5E1' : '#94A3B8', highlight: '#475569', hover: '#64748B' },
-                                dashes: isRecommended,
-                                width: isRecommended ? 2 : 1.5,
-                                arrows: { to: { enabled: true, scaleFactor: 0.6 } },
-                                smooth: { type: 'continuous', roundness: 0.3 }
-                            };
-                        }));
-                        
-                        const data = { nodes: nodes, edges: edges };
-                        const options = {
-                            physics: {
-                                solver: 'barnesHut',
-                                barnesHut: {
-                                    gravitationalConstant: -8000,
-                                    centralGravity: 0.3,
-                                    springLength: 200,
-                                    springConstant: 0.04,
-                                    damping: 0.9,
-                                    avoidOverlap: 1
-                                },
-                                stabilization: {
-                                    enabled: true,
-                                    iterations: 200,
-                                    updateInterval: 25
-                                }
-                            },
-                            interaction: { 
-                                hover: true, 
-                                tooltipDelay: 150,
-                                zoomView: true,
-                                dragView: true,
-                                zoomSpeed: 0.5,
-                                keyboard: false,
-                                navigationButtons: false,
-                                minZoom: 0.5,
-                                maxZoom: 2.5
-                            },
-                            layout: { improvedLayout: true }
-                        };
-                        
-                        const network = new vis.Network(container, data, options);
-                        
-                        // Matikan physics setelah grafik stabil agar tidak bergerak terus
-                        network.on("stabilized", function () {
-                            network.setOptions({ physics: false });
-                            network.fit({ animation: { duration: 600, easingFunction: "easeOutQuad" } });
-                        });
-                        // Tambahkan event handler untuk tombol-tombol toolbar
-                        document.getElementById('btn-zoom-in').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            network.moveTo({ scale: network.getScale() * 1.5, animation: { duration: 300 } });
-                        });
-                        document.getElementById('btn-zoom-out').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            network.moveTo({ scale: network.getScale() / 1.5, animation: { duration: 300 } });
-                        });
-                        document.getElementById('btn-fit-graph').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            network.fit({ animation: { duration: 600, easingFunction: "easeOutQuad" } });
-                        });
-
-                    } else {
-                        container.innerHTML = '<div style="color:red; padding: 20px;">Gagal memuat grafik dari API.</div>';
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    container.innerHTML = '<div style="color:red; padding: 20px;">Terjadi kesalahan saat memuat grafik.</div>';
-                });
+    function groupColor(group) {
+        switch (group) {
+            case 'target': return { background: '#1f77b4', border: '#155a8a', highlight: { background: '#3b93d6', border: '#155a8a' } };
+            case 'recommendation': return { background: '#ff9800', border: '#c26f00', highlight: { background: '#ffb04d', border: '#c26f00' } };
+            default: return { background: '#4caf50', border: '#357a38', highlight: { background: '#6fc873', border: '#357a38' } };
         }
-    });
-</script>
-@endif
+    }
 
-</body>
-</html>
+    const container = document.getElementById('network-graph');
+
+    if (container && graphData.nodes && graphData.nodes.length > 0) {
+        const nodes = new vis.DataSet(graphData.nodes.map(n => ({
+            id: n.id,
+            label: n.label,
+            color: groupColor(n.group),
+            font: { color: '#e2e8f0', size: 13, face: 'Inter' },
+            shape: n.group === 'target' ? 'star' : 'dot',
+            size: n.group === 'target' ? 22 : (n.group === 'recommendation' ? 16 : 12),
+            borderWidth: 2,
+        })));
+
+        const edges = new vis.DataSet(graphData.edges.map(e => ({
+            from: e.from,
+            to: e.to,
+            label: e.label,
+            arrows: 'to',
+            color: { color: e.label === 'recommended' ? '#ff9800' : '#475569', opacity: 0.8 },
+            font: { color: '#94a3b8', size: 9, strokeWidth: 0, align: 'middle' },
+            width: e.label === 'recommended' ? 2.5 : 1,
+            smooth: { type: 'continuous' },
+        })));
+
+        const network = new vis.Network(container, { nodes, edges }, {
+            autoResize: true,
+            height: '100%',
+            width: '100%',
+            physics: {
+                barnesHut: { gravitationalConstant: -12000, springLength: 140, springConstant: 0.04 },
+                stabilization: { iterations: 150 },
+            },
+            interaction: { hover: true, tooltipDelay: 100 },
+            nodes: { shadow: true },
+            edges: { shadow: false },
+        });
+
+        network.once('stabilizationIterationsDone', () => network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } }));
+    }
+</script>
+@endpush
