@@ -18,6 +18,8 @@ class RekomendasiController extends Controller
 
         $evaluatedRekomendasi = [];
 
+        $currentMetode = $useCascading ? 'Cascading Hybrid' : 'Standard ANE';
+
         if ($name !== '') {
             $rekomendasi = ApiDataProvider::rekomendasi($name, $useCascading);
             $rekomNames = array_column($rekomendasi, 'Rekomendasi_Nama');
@@ -28,7 +30,9 @@ class RekomendasiController extends Controller
                 if (strcasecmp($r['nama'], $name) === 0) {
                     if (isset($r['rekomendasi']) && is_array($r['rekomendasi'])) {
                         foreach ($r['rekomendasi'] as $rek) {
-                            $evaluatedRekomendasi[] = strtolower(trim($rek['nama']));
+                            if (isset($rek['metode']) && $rek['metode'] === $currentMetode) {
+                                $evaluatedRekomendasi[] = strtolower(trim($rek['nama']));
+                            }
                         }
                     }
                     break;
