@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Cari Rekomendasi | REINFORCED')
 @section('page-title', 'Cari Rekomendasi')
@@ -17,7 +17,7 @@
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Peneliti Target</label>
                 <select name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 focus:outline-none transition">
-                    <option value="">â€” Pilih Peneliti â€”</option>
+                    <option value="">-- Pilih Peneliti --</option>
                     @foreach($dosenList as $dosen)
                         <option value="{{ $dosen['nama'] }}" {{ strcasecmp($currentName, $dosen['nama']) === 0 ? 'selected' : '' }}>
                             {{ $dosen['nama'] }} &middot; SINTA {{ $dosen['sinta_id'] }}
@@ -119,11 +119,19 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                                     Detail
                                 </button>
-                                <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
-                                    class="inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    Nilai
-                                </button>
+                                @if($hasEvaluated)
+                                    <button type="button" disabled
+                                        class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                        Dinilai
+                                    </button>
+                                @else
+                                    <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
+                                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        Beri Nilai
+                                    </button>
+                                @endif
                             </div>
                         </div>
 

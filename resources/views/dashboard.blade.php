@@ -71,7 +71,7 @@
         {{-- Card 2: Total Publikasi --}}
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
-                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalPublikasi ?? 108) }}</p>
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalPublikasi ?? 0) }}</p>
                 <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Total Publikasi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
@@ -84,7 +84,7 @@
         {{-- Card 3: Relasi Kolaborasi --}}
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
-                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalRelasi ?? 36) }}</p>
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalRelasi ?? 0) }}</p>
                 <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Relasi Kolaborasi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
@@ -94,15 +94,15 @@
             </div>
         </div>
 
-        {{-- Card 4: Total Sitasi Ilmiah --}}
+        {{-- Card 4: Program Studi --}}
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
-                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ number_format($totalSitasi ?? 1420) }}</p>
-                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Total Sitasi Ilmiah</p>
+                <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none">{{ count($departemenList ?? []) }}</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-2">Program Studi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
                 <img src="{{ asset('images/Research paper-amico.svg') }}" 
-                     alt="Ilustrasi Total Sitasi Ilmiah" 
+                     alt="Ilustrasi Program Studi" 
                      class="w-full h-full object-contain scale-115 sm:scale-120 group-hover:scale-125 transition-transform duration-300">
             </div>
         </div>
