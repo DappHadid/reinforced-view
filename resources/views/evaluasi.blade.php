@@ -77,26 +77,61 @@
                 <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
                     <tr>
                         <th class="px-6 py-4 w-1/12">No</th>
-                        <th class="px-6 py-4 w-1/3">Target Peneliti</th>
-                        <th class="px-6 py-4 text-center">Total Evaluasi</th>
-                        <th class="px-6 py-4 text-center">Skor Rata-Rata</th>
+                        <th class="px-6 py-4">Target Peneliti</th>
+                        <th class="px-6 py-4 text-center border-l border-slate-200">Total (Cascading)</th>
+                        <th class="px-6 py-4 text-center">Rata-rata (Cascading)</th>
+                        <th class="px-6 py-4 text-center border-l border-slate-200">Total (Standar)</th>
+                        <th class="px-6 py-4 text-center">Rata-rata (Standar)</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($penilaianRekap as $index => $rekap)
+                        @php
+                            $rekaps = $rekap['rekomendasi'] ?? [];
+                            $cascading = array_filter($rekaps, fn($r) => ($r['metode'] ?? '') == 'Cascading Hybrid');
+                            $standard = array_filter($rekaps, fn($r) => ($r['metode'] ?? '') == 'Standard ANE');
+                            
+                            $countC = count($cascading);
+                            $avgC = $countC > 0 ? array_sum(array_column($cascading, 'score')) / $countC : 0;
+                            
+                            $countS = count($standard);
+                            $avgS = $countS > 0 ? array_sum(array_column($standard, 'score')) / $countS : 0;
+                        @endphp
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4 text-slate-500">{{ $index + 1 }}</td>
                             <td class="px-6 py-4 font-semibold text-slate-900">{{ $rekap['nama'] }}</td>
-                            <td class="px-6 py-4 text-center text-slate-600">
-                                {{ isset($rekap['rekomendasi']) ? count($rekap['rekomendasi']) : 0 }} Penilaian
+                            
+                            <!-- CASCADING -->
+                            <td class="px-6 py-4 text-center text-slate-600 border-l border-slate-100">
+                                {{ $countC }} Penilaian
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <div class="flex items-center justify-center text-amber-400">
-                                    {{ number_format($rekap['rata_rata'], 1) }}
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                </div>
+                                @if($countC > 0)
+                                    <div class="flex items-center justify-center text-amber-400">
+                                        {{ number_format($avgC, 1) }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    </div>
+                                @else
+                                    <span class="text-slate-300">-</span>
+                                @endif
                             </td>
+                            
+                            <!-- STANDAR -->
+                            <td class="px-6 py-4 text-center text-slate-600 border-l border-slate-100">
+                                {{ $countS }} Penilaian
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if($countS > 0)
+                                    <div class="flex items-center justify-center text-amber-400">
+                                        {{ number_format($avgS, 1) }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    </div>
+                                @else
+                                    <span class="text-slate-300">-</span>
+                                @endif
+                            </td>
+                            
                             <td class="px-6 py-4 text-right">
                                 <button type="button" onclick="openDetailModal('modal-detail-{{ $index }}')" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
                                     Lihat Detail
@@ -105,7 +140,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+                            <td colspan="7" class="px-6 py-8 text-center text-slate-400">
                                 Belum ada data penilaian.
                             </td>
                         </tr>
