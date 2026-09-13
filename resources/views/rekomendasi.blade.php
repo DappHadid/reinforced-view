@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Cari Rekomendasi | REINFORCED')
 @section('page-title', 'Cari Rekomendasi')
@@ -141,7 +141,7 @@
                     </div>
 
                     {{-- ===== Modal: Detail Publikasi ===== --}}
-                    <dialog id="{{ $modalId }}" class="rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-lg backdrop:bg-slate-900/50">
+                    <dialog id="{{ $modalId }}" class="m-auto rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-2xl backdrop:bg-slate-900/50">
                         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900">{{ $r['Rekomendasi_Nama'] }}</h3>
@@ -187,7 +187,7 @@
                     </dialog>
 
                     {{-- ===== Modal: Form Penilaian ===== --}}
-                    <dialog id="rating-{{ $modalId }}" class="rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-md backdrop:bg-slate-900/50">
+                    <dialog id="rating-{{ $modalId }}" class="m-auto rounded-2xl border border-slate-200 shadow-xl p-0 w-full max-w-lg backdrop:bg-slate-900/50">
                         <form action="{{ route('rekomendasi.penilaian') }}" method="POST">
                             @csrf
                             <input type="hidden" name="rekomendasi_sinta_id" value="{{ $r['Rekomendasi_SINTA_ID'] }}">
