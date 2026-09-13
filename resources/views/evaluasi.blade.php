@@ -66,9 +66,18 @@
         @endforeach
     </section>
     {{-- ============ RIWAYAT PENILAIAN ============ --}}
-    <div class="mt-12 mb-4">
-        <h2 class="text-lg font-bold text-slate-900">Riwayat Penilaian Pengguna</h2>
-        <p class="text-sm text-slate-500">Daftar evaluasi kualitas rekomendasi yang diberikan pengguna.</p>
+    <div class="mt-12 mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">Riwayat Penilaian Pengguna</h2>
+            <p class="text-sm text-slate-500">Daftar evaluasi kualitas rekomendasi yang diberikan pengguna.</p>
+        </div>
+        
+        <!-- Filter Metode -->
+        <div class="flex p-1 bg-slate-100 rounded-lg w-fit">
+            <button onclick="filterRiwayat('Semua')" id="btn-filter-Semua" class="px-4 py-2 text-sm font-medium rounded-md bg-white text-slate-800 shadow-sm transition-all filter-btn">Semua</button>
+            <button onclick="filterRiwayat('Cascading Hybrid')" id="btn-filter-Cascading" class="px-4 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all filter-btn">Cascading Hybrid</button>
+            <button onclick="filterRiwayat('Standard ANE')" id="btn-filter-Standard" class="px-4 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all filter-btn">Standard ANE</button>
+        </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
@@ -77,11 +86,9 @@
                 <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
                     <tr>
                         <th class="px-6 py-4 w-1/12">No</th>
-                        <th class="px-6 py-4">Target Peneliti</th>
-                        <th class="px-6 py-4 text-center border-l border-slate-200">Total (Cascading)</th>
-                        <th class="px-6 py-4 text-center">Rata-rata (Cascading)</th>
-                        <th class="px-6 py-4 text-center border-l border-slate-200">Total (Standar)</th>
-                        <th class="px-6 py-4 text-center">Rata-rata (Standar)</th>
+                        <th class="px-6 py-4 w-1/3">Target Peneliti</th>
+                        <th class="px-6 py-4 text-center">Total Evaluasi</th>
+                        <th class="px-6 py-4 text-center">Skor Rata-Rata</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -92,44 +99,31 @@
                             $cascading = array_filter($rekaps, fn($r) => ($r['metode'] ?? '') == 'Cascading Hybrid');
                             $standard = array_filter($rekaps, fn($r) => ($r['metode'] ?? '') == 'Standard ANE');
                             
+                            $countAll = count($rekaps);
+                            $avgAll = $countAll > 0 ? array_sum(array_column($rekaps, 'score')) / $countAll : 0;
+
                             $countC = count($cascading);
                             $avgC = $countC > 0 ? array_sum(array_column($cascading, 'score')) / $countC : 0;
                             
                             $countS = count($standard);
                             $avgS = $countS > 0 ? array_sum(array_column($standard, 'score')) / $countS : 0;
                         @endphp
-                        <tr class="hover:bg-slate-50/50 transition-colors">
+                        <tr class="hover:bg-slate-50/50 transition-colors rekap-row"
+                            data-all-count="{{ $countAll }}" data-all-avg="{{ number_format($avgAll, 1) }}"
+                            data-cascading-count="{{ $countC }}" data-cascading-avg="{{ number_format($avgC, 1) }}"
+                            data-standard-count="{{ $countS }}" data-standard-avg="{{ number_format($avgS, 1) }}">
+                            
                             <td class="px-6 py-4 text-slate-500">{{ $index + 1 }}</td>
                             <td class="px-6 py-4 font-semibold text-slate-900">{{ $rekap['nama'] }}</td>
                             
-                            <!-- CASCADING -->
-                            <td class="px-6 py-4 text-center text-slate-600 border-l border-slate-100">
-                                {{ $countC }} Penilaian
+                            <td class="px-6 py-4 text-center text-slate-600 js-count">
+                                {{ $countAll }} Penilaian
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if($countC > 0)
-                                    <div class="flex items-center justify-center text-amber-400">
-                                        {{ number_format($avgC, 1) }}
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    </div>
-                                @else
-                                    <span class="text-slate-300">-</span>
-                                @endif
-                            </td>
-                            
-                            <!-- STANDAR -->
-                            <td class="px-6 py-4 text-center text-slate-600 border-l border-slate-100">
-                                {{ $countS }} Penilaian
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($countS > 0)
-                                    <div class="flex items-center justify-center text-amber-400">
-                                        {{ number_format($avgS, 1) }}
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    </div>
-                                @else
-                                    <span class="text-slate-300">-</span>
-                                @endif
+                                <div class="flex items-center justify-center text-amber-400">
+                                    <span class="js-avg">{{ number_format($avgAll, 1) }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </div>
                             </td>
                             
                             <td class="px-6 py-4 text-right">
@@ -140,7 +134,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-slate-400">
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">
                                 Belum ada data penilaian.
                             </td>
                         </tr>
@@ -183,14 +177,13 @@
                         <tbody class="divide-y divide-slate-100">
                             @if(isset($rekap['rekomendasi']) && is_array($rekap['rekomendasi']))
                                 @foreach($rekap['rekomendasi'] as $rek)
-                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                    @php $metode = $rek['metode'] ?? 'Cascading Hybrid'; @endphp
+                                    <tr class="hover:bg-slate-50/50 transition-colors modal-rek-row" data-metode="{{ $metode }}">
                                         <td class="px-6 py-4">
-                                            @if(($rek['metode'] ?? '') == 'Cascading Hybrid')
+                                            @if($metode == 'Cascading Hybrid')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
-                                            @elseif(($rek['metode'] ?? '') == 'Standard ANE')
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Standard ANE</span>
                                             @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Standard ANE</span>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 text-slate-900 font-medium">{{ $rek['nama'] }}</td>
@@ -218,6 +211,58 @@
     @endforeach
 
     <script>
+        function filterRiwayat(metode) {
+            // Update buttons styling
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                btn.classList.add('text-slate-500');
+            });
+            
+            let activeBtnId = 'btn-filter-Semua';
+            if(metode === 'Cascading Hybrid') activeBtnId = 'btn-filter-Cascading';
+            if(metode === 'Standard ANE') activeBtnId = 'btn-filter-Standard';
+            
+            let activeBtn = document.getElementById(activeBtnId);
+            activeBtn.classList.remove('text-slate-500');
+            activeBtn.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+            
+            // Update main table rows
+            document.querySelectorAll('.rekap-row').forEach(row => {
+                let count = 0;
+                let avg = '0.0';
+                
+                if(metode === 'Semua') {
+                    count = row.getAttribute('data-all-count');
+                    avg = row.getAttribute('data-all-avg');
+                } else if(metode === 'Cascading Hybrid') {
+                    count = row.getAttribute('data-cascading-count');
+                    avg = row.getAttribute('data-cascading-avg');
+                } else if(metode === 'Standard ANE') {
+                    count = row.getAttribute('data-standard-count');
+                    avg = row.getAttribute('data-standard-avg');
+                }
+                
+                row.querySelector('.js-count').innerText = count + ' Penilaian';
+                row.querySelector('.js-avg').innerText = parseInt(count) > 0 ? avg : '-';
+                
+                // Hide row completely if count is 0 for specific filter
+                if(parseInt(count) === 0 && metode !== 'Semua') {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
+            });
+
+            // Update modal details
+            document.querySelectorAll('.modal-rek-row').forEach(row => {
+                if(metode === 'Semua' || row.getAttribute('data-metode') === metode) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         function openDetailModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
