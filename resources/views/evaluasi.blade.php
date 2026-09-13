@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Hasil Evaluasi | REINFORCED')
 @section('page-title', 'Hasil Evaluasi')
@@ -10,8 +10,13 @@
 
 @section('content')
 
-    {{-- ============ METRIC COMPARISON ============ --}}
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {{-- ============ METRIC COMPARISON (ANE SCORES) ============ --}}
+    <div class="mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Evaluasi Performa (ANE & Metrik Dasar)</h2>
+        <p class="text-sm text-slate-500">Menilai performa model menggunakan Attributed Network Embedding (ANE) serta metrik akurasi standar.</p>
+    </div>
+    
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         @foreach([['data' => $evaluasiStandar, 'badge' => 'text-primary-700 bg-primary-50'], ['data' => $evaluasiHybrid, 'badge' => 'text-primary-700 bg-primary-50']] as $card)
             @php $e = $card['data']; @endphp
             <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
@@ -34,8 +39,28 @@
                     </div>
                     <div class="rounded-xl bg-slate-50 p-4">
                         <p class="text-2xl font-extrabold text-slate-900">{{ number_format($e['map_at_5'] * 100, 1) }}%</p>
-                        <p class="text-xs text-slate-400 mt-1">MAP@5</p>
+                        <p class="text-xs text-slate-400 mt-1">Skor ANE (Mean)</p>
                     </div>
+                </div>
+            </div>
+        @endforeach
+    </section>
+
+    {{-- ============ S-BERT SCORES ============ --}}
+    <div class="mb-4 pt-4 border-t border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900">Perbandingan Skor S-BERT</h2>
+        <p class="text-sm text-slate-500">Kemiripan semantik rata-rata judul publikasi berdasarkan model Sentence-BERT.</p>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @foreach([$evaluasiStandar, $evaluasiHybrid] as $e)
+            <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-slate-500">{{ $e['metode'] }}</p>
+                    <p class="text-3xl font-extrabold text-slate-900 mt-1">{{ number_format($e['sbert_mean'] * 100, 1) }}%</p>
+                </div>
+                <div class="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
             </div>
         @endforeach
