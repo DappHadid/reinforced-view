@@ -76,41 +76,33 @@
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
                     <tr>
-                        <th class="px-6 py-4">Metode</th>
-                        <th class="px-6 py-4">Target Peneliti</th>
-                        <th class="px-6 py-4">Rekomendasi Dinilai</th>
-                        <th class="px-6 py-4 text-center">Skor</th>
-                        <th class="px-6 py-4">Komentar</th>
+                        <th class="px-6 py-4 w-1/12">No</th>
+                        <th class="px-6 py-4 w-1/3">Target Peneliti</th>
+                        <th class="px-6 py-4 text-center">Total Evaluasi</th>
+                        <th class="px-6 py-4 text-center">Skor Rata-Rata</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($penilaianRekap as $rekap)
-                        @if(isset($rekap['rekomendasi']) && is_array($rekap['rekomendasi']))
-                            @foreach($rekap['rekomendasi'] as $rek)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        @if(($rek['metode'] ?? '') == 'Cascading Hybrid')
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
-                                        @elseif(($rek['metode'] ?? '') == 'Standard ANE')
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Standard ANE</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-600">{{ $rekap['nama'] }}</td>
-                                    <td class="px-6 py-4 text-slate-900">{{ $rek['nama'] }}</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="flex items-center justify-center text-amber-400">
-                                            {{ $rek['score'] }}
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-500 max-w-xs truncate" title="{{ $rek['komentar'] ?? '' }}">
-                                        {{ !empty($rek['komentar']) ? $rek['komentar'] : '-' }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
+                    @forelse($penilaianRekap as $index => $rekap)
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-slate-500">{{ $index + 1 }}</td>
+                            <td class="px-6 py-4 font-semibold text-slate-900">{{ $rekap['nama'] }}</td>
+                            <td class="px-6 py-4 text-center text-slate-600">
+                                {{ isset($rekap['rekomendasi']) ? count($rekap['rekomendasi']) : 0 }} Penilaian
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center text-amber-400">
+                                    {{ number_format($rekap['rata_rata'], 1) }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button type="button" onclick="openDetailModal('modal-detail-{{ $index }}')" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
+                                    Lihat Detail
+                                </button>
+                            </td>
+                        </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-8 text-center text-slate-400">
@@ -122,4 +114,82 @@
             </table>
         </div>
     </div>
+
+    {{-- Modals for Details --}}
+    @foreach($penilaianRekap as $index => $rekap)
+        <div id="modal-detail-{{ $index }}" class="fixed inset-0 z-[100] hidden">
+            <!-- Backdrop -->
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDetailModal('modal-detail-{{ $index }}')"></div>
+            
+            <!-- Modal Box -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden max-h-[90vh]">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Detail Penilaian: {{ $rekap['nama'] }}</h3>
+                        <p class="text-sm text-slate-500">Daftar evaluasi yang telah diberikan pada peneliti ini.</p>
+                    </div>
+                    <button onclick="closeDetailModal('modal-detail-{{ $index }}')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-0 overflow-y-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs sticky top-0 shadow-sm">
+                            <tr>
+                                <th class="px-6 py-4">Metode</th>
+                                <th class="px-6 py-4">Rekomendasi Dinilai</th>
+                                <th class="px-6 py-4 text-center">Skor</th>
+                                <th class="px-6 py-4">Komentar</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @if(isset($rekap['rekomendasi']) && is_array($rekap['rekomendasi']))
+                                @foreach($rekap['rekomendasi'] as $rek)
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            @if(($rek['metode'] ?? '') == 'Cascading Hybrid')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
+                                            @elseif(($rek['metode'] ?? '') == 'Standard ANE')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Standard ANE</span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Cascading Hybrid</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-slate-900 font-medium">{{ $rek['nama'] }}</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <div class="flex items-center justify-center text-amber-400">
+                                                {{ $rek['score'] }}
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-slate-500 whitespace-normal min-w-[200px]">
+                                            {{ !empty($rek['komentar']) ? $rek['komentar'] : '-' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-slate-400">Data detail tidak tersedia.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <script>
+        function openDetailModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeDetailModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    </script>
 @endsection

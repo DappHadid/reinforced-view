@@ -27,7 +27,7 @@ class RekomendasiController extends Controller
 
             $rekap = ApiDataProvider::penilaianRekap();
             foreach ($rekap as $r) {
-                if (strcasecmp($r['nama'], $name) === 0) {
+                if (strcasecmp(trim($r['nama']), trim($name)) === 0) {
                     if (isset($r['rekomendasi']) && is_array($r['rekomendasi'])) {
                         foreach ($r['rekomendasi'] as $rek) {
                             if (isset($rek['metode']) && $rek['metode'] === $currentMetode) {
