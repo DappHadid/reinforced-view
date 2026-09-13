@@ -88,65 +88,7 @@
         </div>
     </section>
 
-    {{-- ============ STAT METRIC CARDS ============ --}}
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {{-- Card 1: H-INDEX --}}
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-xs">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">H-Index Peneliti</p>
-            <div class="grid grid-cols-3 gap-3 mt-4 pt-1 border-t border-slate-100">
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scholar</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasHIndexScholar'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scopus</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasHIndexScopus'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">WoS</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasHIndexWos'] }}</span>
-                </div>
-            </div>
-        </div>
 
-        {{-- Card 2: TOTAL PUBLIKASI --}}
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-xs">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Publikasi</p>
-            <div class="grid grid-cols-3 gap-3 mt-4 pt-1 border-t border-slate-100">
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scholar</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasPublicationScholar'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scopus</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasPublicationScopus'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">WoS</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasPublicationWos'] }}</span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Card 3: RATA-RATA SITASI --}}
-        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-xs">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Rata-rata Sitasi</p>
-            <div class="grid grid-cols-3 gap-3 mt-4 pt-1 border-t border-slate-100">
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scholar</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasAverageCitationScholar'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">Scopus</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasAverageCitationScopus'] }}</span>
-                </div>
-                <div>
-                    <span class="text-[11px] font-medium text-slate-400 block">WoS</span>
-                    <span class="text-xl font-bold text-slate-900 mt-0.5 block">{{ $dosen['ns0__hasAverageCitationWos'] }}</span>
-                </div>
-            </div>
-        </div>
-    </section>
 
     {{-- ============ GRAPH & TOP REKOMENDASI FOCUS SECTION ============ --}}
     <section class="space-y-4">
@@ -440,18 +382,12 @@
                     <h3 class="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
                         ${pub.judul}
                     </h3>
-                    <span class="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                        ${pub.sumber}
-                    </span>
+                    ${pub.sumber ? `<span class="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">${pub.sumber}</span>` : ''}
                 </div>
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-slate-400">
-                    <span>${pub.tahun}</span>
-                    <span>&bull;</span>
-                    <a href="https://doi.org/${pub.doi}" target="_blank" class="hover:text-slate-700 hover:underline font-mono text-[11px] text-slate-500">
-                        DOI: ${pub.doi}
-                    </a>
+                    ${pub.tahun ? `<span>${pub.tahun}</span>` : ''}
+                    ${(pub.tahun && pub.sitasi) ? `<span>&bull;</span>` : ''}
                     ${pub.sitasi ? `
-                        <span>&bull;</span>
                         <span class="text-slate-600 font-medium">
                             ${pub.sitasi} Sitasi
                         </span>

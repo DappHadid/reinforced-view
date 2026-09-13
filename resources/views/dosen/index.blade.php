@@ -21,8 +21,12 @@
                 REINFORCED
             </h1>
             <p class="mt-3 text-[15px] text-slate-500 leading-relaxed max-w-sm">
-                {{ count($dosenList) }} peneliti aktif dari <strong class="text-slate-700">3 fakultas</strong>
-                dan <strong class="text-slate-700">14 program studi</strong>.
+                @php 
+                    $totalProdi = 0; 
+                    foreach($prodiByFakultas as $fak => $prodis) { $totalProdi += count($prodis); } 
+                @endphp
+                {{ count($dosenList) }} peneliti aktif dari <strong class="text-slate-700">{{ count($fakultasList) }} fakultas</strong>
+                dan <strong class="text-slate-700">{{ $totalProdi }} program studi</strong>.
             </p>
 
             {{-- Search trigger button (command-palette style) --}}
