@@ -208,11 +208,11 @@
                             <div class="px-6 py-4 space-y-4">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-500 mb-2">Rating Kualitas Rekomendasi</label>
-                                    <div class="flex items-center gap-2">
-                                        @for($star = 1; $star <= 5; $star++)
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="rating" value="{{ $star }}" class="peer sr-only" {{ $star === 5 ? 'checked' : '' }} required>
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-200 peer-checked:text-amber-400 hover:text-amber-300 transition-colors" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <div class="flex items-center flex-row-reverse justify-end gap-2 [&>label:hover]:text-amber-300 [&>label:hover~label]:text-amber-300">
+                                        @for($star = 5; $star >= 1; $star--)
+                                            <input type="radio" id="star-{{ $modalId }}-{{ $star }}" name="rating" value="{{ $star }}" class="peer sr-only" {{ $star === 5 ? 'checked' : '' }} required>
+                                            <label for="star-{{ $modalId }}-{{ $star }}" class="cursor-pointer text-slate-200 peer-checked:text-amber-400 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                                             </label>
                                         @endfor
                                     </div>
