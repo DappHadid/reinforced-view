@@ -8,7 +8,7 @@
 {{-- ═══════════════════════════════════════════
      HERO SECTION
 ══════════════════════════════════════════════ --}}
-<section class="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+<section class="rounded-2xl bg-white border border-slate-100 shadow-sm">
     <div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-0 px-8 py-8 lg:py-0 lg:pl-10 lg:pr-0">
 
         {{-- Left: copy + search trigger --}}
@@ -25,30 +25,50 @@
                     $totalProdi = 0; 
                     foreach($prodiByFakultas as $fak => $prodis) { $totalProdi += count($prodis); } 
                 @endphp
-                {{ count($dosenList) }} peneliti aktif dari <strong class="text-slate-700">{{ count($fakultasList) }} fakultas</strong>
+                {{ count($dosenList) }} peneliti dari <strong class="text-slate-700">{{ count($fakultasList) }} fakultas</strong>
                 dan <strong class="text-slate-700">{{ $totalProdi }} program studi</strong>.
             </p>
 
-            {{-- Search trigger button (command-palette style) --}}
-            <button id="search-open-btn"
-                    class="mt-6 w-full max-w-[400px] flex items-center gap-3 rounded-xl
-                           border-2 border-slate-200 bg-slate-50 hover:border-primary-300
-                           hover:bg-white px-4 py-3 text-left transition-all duration-200
-                           group focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-50">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-4 w-4 text-slate-400 group-hover:text-primary-500 transition-colors shrink-0"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <span class="flex-1 text-[14px] text-slate-400 group-hover:text-slate-500 transition-colors">
-                    Cari nama peneliti...
-                </span>
-                <kbd class="hidden sm:inline-flex items-center gap-1 rounded-lg border border-slate-200
-                            bg-white px-2 py-1 text-[10px] font-semibold text-slate-400 shadow-sm">
-                    ⌘ K
-                </kbd>
-            </button>
+            <div class="mt-6 flex flex-col xl:flex-row flex-wrap items-center gap-3">
+                {{-- Search trigger button (command-palette style) --}}
+                <x-search-bar 
+                    id="search-open-btn" 
+                    extraClasses="w-full xl:max-w-[320px] !h-10 !py-0 !rounded-md !border-slate-200" 
+                />
+
+                {{-- Fakultas filter --}}
+                @php
+                    $fakOptions = [['value' => '', 'label' => 'Semua Fakultas']];
+                    foreach($fakultasList as $fak) {
+                        $fakOptions[] = ['value' => $fak, 'label' => $fak];
+                    }
+                @endphp
+                <x-dropdown-select id="filter-fakultas" :options="$fakOptions" placeholder="Semua Fakultas" extraClasses="w-full sm:w-auto min-w-[200px]" />
+
+                {{-- Prodi filter (cascades from fakultas via window event) --}}
+                <div x-data='{
+                    fak: "",
+                    allProdis: @json($prodiByFakultas),
+                    get prodiOpts() {
+                        let opts = [{ value: "", label: "Semua Program Studi" }];
+                        if (this.fak && this.allProdis[this.fak]) {
+                            this.allProdis[this.fak].forEach(p => opts.push({ value: p, label: p }));
+                        } else {
+                            Object.values(this.allProdis).flat().forEach(p => opts.push({ value: p, label: p }));
+                        }
+                        return opts;
+                    }
+                }' @@update-prodi-options.window="fak = $event.detail" class="w-full sm:w-auto min-w-[200px]">
+                    <x-dropdown-select id="filter-prodi" optionsJs="prodiOpts" placeholder="Semua Program Studi" extraClasses="w-full sm:w-auto min-w-[200px]" />
+                </div>
+
+                {{-- Reset filter button (hidden when no filter active) --}}
+                <button id="reset-filters-btn"
+                        class="hidden rounded-md border border-slate-200 bg-white px-4 py-2 text-sm
+                               font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition shadow-sm h-10">
+                    Reset
+                </button>
+            </div>
         </div>
 
         {{-- Right: decorative SVG --}}
@@ -62,68 +82,6 @@
     </div>
 </section>
 
-{{-- ═══════════════════════════════════════════
-     FILTER BAR
-══════════════════════════════════════════════ --}}
-<section class="flex flex-wrap items-center gap-3">
-    {{-- Fakultas filter --}}
-    <div class="relative">
-        <select id="filter-fakultas"
-                class="appearance-none rounded-xl border border-slate-200 bg-white pl-4 pr-9 py-2.5
-                       text-[13px] font-medium text-slate-700 shadow-sm
-                       hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-50
-                       focus:border-primary-400 transition cursor-pointer">
-            <option value="">Semua Fakultas</option>
-            @foreach($fakultasList as $fak)
-                <option value="{{ $fak }}">{{ $fak }}</option>
-            @endforeach
-        </select>
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-             stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-        </svg>
-    </div>
-
-    {{-- Prodi filter (cascades from fakultas) --}}
-    <div class="relative">
-        <select id="filter-prodi"
-                class="appearance-none rounded-xl border border-slate-200 bg-white pl-4 pr-9 py-2.5
-                       text-[13px] font-medium text-slate-700 shadow-sm
-                       hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-50
-                       focus:border-primary-400 transition cursor-pointer
-                       disabled:opacity-50 disabled:cursor-not-allowed">
-            <option value="">Semua Program Studi</option>
-            @foreach($prodiByFakultas as $fak => $prodis)
-                <optgroup label="{{ $fak }}">
-                    @foreach($prodis as $prodi)
-                        <option value="{{ $prodi }}" data-fakultas="{{ $fak }}">{{ $prodi }}</option>
-                    @endforeach
-                </optgroup>
-            @endforeach
-        </select>
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-             stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-        </svg>
-    </div>
-
-    {{-- Reset filter button (hidden when no filter active) --}}
-    <button id="reset-filters-btn"
-            class="hidden rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13px]
-                   font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition shadow-sm">
-        Reset Filter
-    </button>
-
-    {{-- Result count --}}
-    <div class="ml-auto text-[13px] text-slate-500">
-        <span id="result-count" class="font-bold text-slate-900">{{ count($dosenList) }}</span>
-        peneliti ditemukan
-    </div>
-</section>
 
 {{-- ═══════════════════════════════════════════
      CARD GRID
@@ -216,63 +174,17 @@
 </div>
 
 {{-- ═══════════════════════════════════════════
-     SEARCH MODAL (Command Palette)
+     SEARCH MODAL
 ══════════════════════════════════════════════ --}}
-<div id="search-modal"
-     class="fixed inset-0 z-50 hidden"
-     role="dialog" aria-modal="true" aria-label="Cari Peneliti">
-
-    {{-- Backdrop --}}
-    <div id="search-backdrop"
-         class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-200">
-    </div>
-
-    {{-- Modal box --}}
-    <div class="relative z-10 flex justify-center pt-[6vh] px-4">
-        <div id="search-box"
-             class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden
-                    translate-y-4 opacity-0 transition-all duration-200">
-
-            {{-- Input row --}}
-            <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 shrink-0"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input id="search-modal-input"
-                       type="text"
-                       autocomplete="off"
-                       placeholder="Cari nama peneliti..."
-                       class="flex-1 text-[16px] text-slate-800 placeholder-slate-400
-                              bg-transparent outline-none">
-                <kbd class="hidden sm:inline-flex items-center rounded-lg border border-slate-200
-                            bg-slate-50 px-2.5 py-1.5 text-[10px] font-semibold text-slate-400">
-                    Esc
-                </kbd>
-            </div>
-
-            {{-- Results list --}}
-            <div id="search-results" class="overflow-y-auto max-h-[520px]">
-                {{-- Populated by JS --}}
-
-            {{-- Footer hint --}}
-            <div class="px-5 py-2.5 border-t border-slate-100 flex items-center gap-4
-                        text-[10px] font-semibold text-slate-400">
-                <span class="flex items-center gap-1">
-                    <kbd class="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5">↑↓</kbd>
-                    Navigasi
-                </span>
-                <span class="flex items-center gap-1">
-                    <kbd class="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5">Enter</kbd>
-                    Buka
-                </span>
-                <span class="flex items-center gap-1">
-                    <kbd class="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5">Esc</kbd>
-                    Tutup
-                </span>
-            </div>
+<div id="search-modal" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-label="Cari peneliti">
+    <div id="search-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity"></div>
+    <div id="search-box" class="flex flex-col relative w-full max-w-2xl max-h-full min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl opacity-0 translate-y-4 transition-all">
+        <div class="flex items-center gap-4 border-b border-slate-100 px-6 py-5 shrink-0 bg-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="search-modal-input" type="text" autocomplete="off" placeholder="Cari nama peneliti..." class="min-w-0 flex-1 border-0 p-0 text-lg font-medium text-slate-800 outline-none ring-0 placeholder:text-slate-400 bg-transparent">
+            <button type="button" id="search-modal-close" class="rounded-md px-3 py-1.5 text-sm font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0">Esc</button>
         </div>
+        <div id="search-results" class="flex-1 overflow-y-auto overscroll-contain bg-white min-h-0"></div>
     </div>
 </div>
 
@@ -309,88 +221,78 @@
 
     function openSearch() {
         modal.classList.remove('hidden');
+        modal.classList.add('flex');
         document.body.style.overflow = 'hidden';
         requestAnimationFrame(() => {
-            backdrop.style.opacity = '1';
-            searchBox.style.opacity = '1';
-            searchBox.style.transform = 'translateY(0)';
+            backdrop.classList.add('opacity-100');
+            searchBox.classList.remove('opacity-0', 'translate-y-4');
         });
         setTimeout(() => searchInput.focus(), 80);
         renderResults('');
     }
 
     function closeSearch() {
-        backdrop.style.opacity = '0';
-        searchBox.style.opacity = '0';
-        searchBox.style.transform = 'translateY(1rem)';
+        backdrop.classList.remove('opacity-100');
+        searchBox.classList.add('opacity-0', 'translate-y-4');
         setTimeout(() => {
             modal.classList.add('hidden');
+            modal.classList.remove('flex');
             searchInput.value = '';
             selectedIdx = -1;
-        }, 200);
+        }, 180);
         document.body.style.overflow = '';
     }
 
     function renderResults(query) {
         const q = query.trim().toLowerCase();
-        const list = q === ''
-            ? DOSEN_ALL.slice(0, 10)
-            : DOSEN_ALL.filter(d => d.nama.toLowerCase().includes(q));
+        let list = q ? DOSEN_ALL.filter(d => d.nama.toLowerCase().includes(q)) : [...DOSEN_ALL];
+
+        // Sort alphabetically
+        list.sort((a, b) => a.nama.localeCompare(b.nama));
 
         selectedIdx = -1;
 
         if (list.length === 0) {
-            searchResults.innerHTML = `
-                <div class="py-10 text-center">
-                    <p class="text-[13px] font-semibold text-slate-500">Tidak ada hasil untuk</p>
-                    <p class="text-[13px] text-slate-400 mt-0.5">"${escHtml(query)}"</p>
-                </div>`;
+            searchResults.innerHTML = '<p class="px-6 py-12 text-center text-base text-slate-400">Peneliti tidak ditemukan.</p>';
             return;
         }
 
-        if (q === '') {
-            searchResults.innerHTML = `<p class="px-5 pt-4 pb-2 text-[10px] font-bold tracking-widest uppercase text-slate-400">Semua Peneliti</p>`;
+        // Group by first letter
+        const groups = {};
+        list.forEach(d => {
+            let letter = d.nama.charAt(0).toUpperCase();
+            if (!/[A-Z]/.test(letter)) letter = '#';
+            if (!groups[letter]) groups[letter] = [];
+            groups[letter].push(d);
+        });
+
+        let html = '';
+        if (q) {
+            html += `<p class="px-6 pt-4 pb-2 text-xs font-semibold uppercase tracking-widest text-slate-400 sticky top-0 bg-white/95 backdrop-blur-sm z-10">${list.length} hasil ditemukan</p>`;
         } else {
-            searchResults.innerHTML = `<p class="px-5 pt-4 pb-2 text-[10px] font-bold tracking-widest uppercase text-slate-400">${list.length} hasil ditemukan</p>`;
+            html += `<p class="px-6 pt-4 pb-2 text-xs font-semibold uppercase tracking-widest text-slate-400 sticky top-0 bg-white/95 backdrop-blur-sm z-10">Semua Peneliti</p>`;
         }
 
-        const ul = document.createElement('ul');
-        list.forEach((d, i) => {
-            const li = document.createElement('li');
-            li.className = 'search-result-item';
-            li.innerHTML = `
-                <a href="/dosen/${escHtml(d.sinta_id)}"
-                   class="flex items-center gap-3.5 px-5 py-3
-                          hover:bg-primary-50 transition-colors group/item">
-                    <div class="h-10 w-10 shrink-0 rounded-full overflow-hidden bg-slate-100
-                                ring-2 ring-white shadow-sm">
-                        <img src="/${escHtml(d.avatar_image)}"
-                             alt="${escHtml(d.nama_display)}"
-                             class="h-full w-full object-cover object-[center_15%]"
-                             onerror="this.style.display='none';
-                                      this.nextElementSibling.style.display='flex';">
-                        <div style="display:none"
-                             class="h-full w-full items-center justify-center bg-primary-100">
-                            <span class="text-sm font-extrabold text-primary-700">${escHtml(d.initials)}</span>
-                        </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[14px] font-semibold text-slate-800 truncate
-                                  group-hover/item:text-primary-700 transition-colors">
-                            ${highlight(escHtml(d.nama_display), q)}
-                        </p>
-                        <p class="text-[11px] text-slate-400 truncate">${escHtml(d.prodi)}</p>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="h-3.5 w-3.5 text-slate-300 group-hover/item:text-primary-400 shrink-0 transition-colors"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </a>`;
-            ul.appendChild(li);
-        });
-        searchResults.appendChild(ul);
+        for (const [letter, researchers] of Object.entries(groups)) {
+            // Group Header
+            html += `<div class="px-6 py-2.5 bg-slate-50/90 border-y border-slate-100 sticky top-8 z-10 flex items-center gap-2 backdrop-blur-md">
+                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-white border border-slate-200 text-xs font-semibold text-primary-600 shadow-sm">${letter}</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">${researchers.length} Peneliti</span>
+                     </div>`;
+            
+            researchers.forEach(d => {
+                html += `<a href="/dosen/${escHtml(d.sinta_id)}" class="search-result group flex w-full items-center gap-4 px-6 py-3.5 text-left hover:bg-primary-50/50 transition-colors border-b border-slate-50 last:border-0 outline-none focus:bg-primary-50/50">
+                            <img src="/${escHtml(d.avatar_image || 'images/avatar.jpg')}" class="h-12 w-12 rounded-full bg-slate-100 object-cover shadow-sm border border-slate-200" onerror="this.onerror=null;this.src='/images/avatar.jpg'">
+                            <span class="min-w-0 flex-1">
+                                <span class="block truncate text-base font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">${highlight(escHtml(d.nama_display), q)}</span>
+                                <span class="block truncate text-xs text-slate-500 mt-0.5">${escHtml(d.prodi)}</span>
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300 group-hover:text-primary-400 shrink-0 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                         </a>`;
+            });
+        }
+        
+        searchResults.innerHTML = html;
     }
 
     function highlight(text, query) {
@@ -421,9 +323,10 @@
         }
     });
 
-    /* ── Wire up ──────────────────────────────── */
+    /* ── Wire up ──────────────────────────────────── */
     searchInput.addEventListener('input', e => renderResults(e.target.value));
-    document.getElementById('search-open-btn').addEventListener('click', openSearch);
+    document.getElementById('search-open-btn')?.addEventListener('click', openSearch);
+    document.getElementById('search-modal-close')?.addEventListener('click', closeSearch);
     backdrop.addEventListener('click', closeSearch);
 
     /* ══════════════════════════════════════════════════
@@ -447,40 +350,12 @@
         resetBtn.classList.toggle('hidden', !fak && !prod);
     }
 
-    /* Cascade prodi dropdown */
+    /* Cascade prodi dropdown using Alpine Event */
     filterFakultas.addEventListener('change', function () {
-        const fak    = this.value;
-        const prodis = fak ? (PRODI_BY_FAK[fak] || []) : null;
-
-        // Re-build prodi select options
-        filterProdi.innerHTML = '<option value="">Semua Program Studi</option>';
-        if (prodis) {
-            const grp = document.createElement('optgroup');
-            grp.label = fak;
-            prodis.forEach(p => {
-                const opt    = document.createElement('option');
-                opt.value    = p;
-                opt.textContent = p;
-                grp.appendChild(opt);
-            });
-            filterProdi.appendChild(grp);
-        } else {
-            // Show all prodi from all faculties
-            Object.entries(PRODI_BY_FAK).forEach(([f, ps]) => {
-                const grp = document.createElement('optgroup');
-                grp.label = f;
-                ps.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p;
-                    opt.textContent = p;
-                    grp.appendChild(opt);
-                });
-                filterProdi.appendChild(grp);
-            });
-        }
-
-        filterProdi.value    = '';
-        filterProdi.disabled = false;
+        const fak = this.value;
+        filterProdi.value = '';
+        filterProdi.dispatchEvent(new Event('change', { bubbles: true }));
+        window.dispatchEvent(new CustomEvent('update-prodi-options', { detail: fak }));
         applyFilters();
     });
 
@@ -489,6 +364,9 @@
     window.resetFilters = function () {
         filterFakultas.value = '';
         filterProdi.value    = '';
+        filterFakultas.dispatchEvent(new Event('change', { bubbles: true }));
+        filterProdi.dispatchEvent(new Event('change', { bubbles: true }));
+        window.dispatchEvent(new CustomEvent('update-prodi-options', { detail: '' }));
         applyFilters();
     };
 

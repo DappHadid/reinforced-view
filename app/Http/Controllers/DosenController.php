@@ -40,7 +40,7 @@ class DosenController extends Controller
     /**
      * Transformasi raw dosen dari API menjadi format yang dibutuhkan view.
      */
-    private static function transform(array $dosen, int $index): array
+    public static function transform(array $dosen, int $index): array
     {
         $nama     = $dosen['nama'] ?? '';
         $sintaId  = $dosen['sinta_id'] ?? '';
@@ -65,7 +65,7 @@ class DosenController extends Controller
                 break;
             }
         }
-        $avatarImage = $avatarImage ?? 'images/profile_picture/default.png';
+        $avatarImage = $avatarImage ?? 'images/avatar.jpg';
 
         // Initials
         $words    = preg_split('/\s+/', trim($nama));
@@ -142,7 +142,7 @@ class DosenController extends Controller
 
     // -------------------------------------------------------------------------
 
-    public function show(string $sintaId)
+    public function show(Request $request, string $sintaId)
     {
         $detail = ApiDataProvider::dosenDetail($sintaId);
         abort_if($detail === null, 404);
@@ -158,15 +158,69 @@ class DosenController extends Controller
         $detail = array_merge($detail, ApiDataProvider::dosenDetail($sintaId) ?? []);
 
         $publikasi   = ApiDataProvider::publikasi($sintaId);
-        $rekomendasi = ApiDataProvider::rekomendasi($detail['hasName'] ?? $detail['nama'], true);
+        $useCascading = $request->query('use_cascading', 'true') === 'true';
+        $rekomendasi = ApiDataProvider::rekomendasi($detail['hasName'] ?? $detail['nama'], $useCascading);
+        $dosenById = [];
+        foreach (ApiDataProvider::dosenList() as $index => $dosenItem) {
+            $dosenById[(string) ($dosenItem['sinta_id'] ?? '')] = self::transform($dosenItem, $index);
+        }
+        $rekomendasi = array_map(function ($rek, $index) use ($dosenById) {
+            $sintaIdRek = (string) ($rek['Rekomendasi_SINTA_ID'] ?? '');
+            $rek['meta'] = $dosenById[$sintaIdRek] ?? self::transform([
+                'nama' => $rek['Rekomendasi_Nama'] ?? '',
+                'sinta_id' => $sintaIdRek,
+            ], $index);
+            return $rek;
+        }, $rekomendasi, array_keys($rekomendasi));
         $rekomNames  = array_slice(array_column($rekomendasi, 'Rekomendasi_Nama'), 0, 4);
-        $graphData   = ApiDataProvider::graph($detail['hasName'] ?? $detail['nama'], $rekomNames);
+        $graphData   = ApiDataProvider::graph($detail['hasName'] ?? $detail['nama'], $rekomNames, $useCascading);
+
+        // Build stats lookup keyed by sinta_id to enrich graph nodes for popup
+        $statsById = [];
+
+        // Target dosen
+        $statsById[(string)($detail['hasSintaID'] ?? $sintaId)] = [
+            'h_index'           => $detail['ns0__hasHIndexScholar']      ?? null,
+            'publication_count' => $detail['ns0__hasPublicationScholar'] ?? null,
+            'department'        => $detail['prodi'] ?? ($detail['hasDepartment'] ?? null),
+            'ane_score'         => null,
+        ];
+
+        // Rekomendasi nodes
+        foreach ($rekomendasi as $rek) {
+            $sid  = (string)($rek['Rekomendasi_SINTA_ID'] ?? '');
+            $stat = $rek['Detail_Statistik'] ?? [];
+            $meta = $rek['meta'] ?? [];
+            if ($sid !== '') {
+                $statsById[$sid] = [
+                    'h_index'           => $stat['ns0__hasHIndexScholar']      ?? ($stat['hasHIndexScholar']      ?? null),
+                    'publication_count' => $stat['ns0__hasPublicationScholar'] ?? ($stat['hasPublicationScholar'] ?? null),
+                    'department'        => $meta['prodi'] ?? null,
+                    'ane_score'         => $rek['Skor Kemiripan'] ?? null,
+                ];
+            }
+        }
+
+        // Collaborator nodes from dosenList
+        foreach ($dosenById as $sid => $d) {
+            if (!isset($statsById[$sid])) {
+                $statsById[$sid] = [
+                    'h_index'           => $d['ns0__hasHIndexScholar']      ?? ($d['hasHIndexScholar']      ?? null),
+                    'publication_count' => $d['ns0__hasPublicationScholar'] ?? ($d['hasPublicationScholar'] ?? null),
+                    'department'        => $d['prodi'] ?? null,
+                    'ane_score'         => null,
+                ];
+            }
+        }
+
+        $graphData = ApiDataProvider::enrichGraphNodes($graphData, $statsById);
 
         return view('dosen.show', [
             'dosen'       => $detail,
             'publikasi'   => $publikasi,
             'rekomendasi' => $rekomendasi,
             'graphData'   => $graphData,
+            'useCascading' => $useCascading,
         ]);
     }
 }

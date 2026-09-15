@@ -27,6 +27,22 @@ class DashboardController extends Controller
         // Fetch overall graph for the dashboard
         $graphData = ApiDataProvider::fullGraph($selectedDepartemen ?: null);
 
+        // Enrich graph nodes with stats from dosenList for popup display
+        $statsById = [];
+        foreach ($dosenList as $index => $d) {
+            $sid = (string)($d['sinta_id'] ?? '');
+            if ($sid !== '') {
+                $transformed = \App\Http\Controllers\DosenController::transform($d, $index);
+                $statsById[$sid] = [
+                    'h_index'           => $d['ns0__hasHIndexScholar']      ?? ($d['hasHIndexScholar']      ?? null),
+                    'publication_count' => $d['ns0__hasPublicationScholar'] ?? ($d['hasPublicationScholar'] ?? null),
+                    'department'        => $transformed['prodi'] ?? null,
+                    'ane_score'         => null,
+                ];
+            }
+        }
+        $graphData = ApiDataProvider::enrichGraphNodes($graphData, $statsById);
+
         $evaluasiHybrid = ApiDataProvider::evaluasi(true);
 
         // Statistik ringkas dari data dosen

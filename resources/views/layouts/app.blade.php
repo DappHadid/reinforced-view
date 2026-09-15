@@ -10,6 +10,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 
     <style>
@@ -87,7 +88,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="text-base font-extrabold tracking-tight text-slate-900 leading-none group-hover:text-primary-600 transition-colors">REINFORCED</p>
-                        <p class="text-[11px] text-slate-400 mt-1 truncate">Research Collaborator Rec.</p>
+                        <p class="text-xs font-normal text-slate-400 mt-1 truncate">Research Collaborator Rec.</p>
                     </div>
                 </a>
 
@@ -107,7 +108,7 @@
 
             {{-- Navigation Menu --}}
             <nav class="flex-1 px-4 py-3 space-y-1 overflow-y-auto">
-                <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
 
                 @php
                     $navItems = [
@@ -119,9 +120,12 @@
                 @endphp
 
                 @foreach($navItems as $item)
-                    @php $isActive = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*'); @endphp
+                    @php 
+                        $baseRoute = explode('.', $item['route'])[0];
+                        $isActive = request()->routeIs($baseRoute) || request()->routeIs($baseRoute . '.*');
+                    @endphp
                     <a href="{{ route($item['route']) }}"
-                       class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors {{ $isActive ? 'bg-primary-50 text-primary-700' : 'font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                       class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-semibold transition-colors {{ $isActive ? 'bg-primary-50 text-primary-700' : 'font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $item['icon'] !!}</svg>
                         <span class="truncate">{{ $item['label'] }}</span>
                     </a>
@@ -160,7 +164,7 @@
 
                     <div class="min-w-0">
                         <h1 class="text-xl font-extrabold text-slate-900 tracking-tight truncate">@yield('page-title', 'REINFORCED')</h1>
-                        <p class="text-sm text-slate-400 truncate">@yield('page-subtitle', '')</p>
+                        <p class="text-base font-normal text-slate-400 truncate">@yield('page-subtitle', '')</p>
                     </div>
                 </div>
 
@@ -189,7 +193,7 @@
                 @if(session('status'))
                     <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 flex items-start gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        <p class="text-sm font-semibold text-emerald-700">{{ session('status') }}</p>
+                        <p class="text-base font-semibold text-emerald-700">{{ session('status') }}</p>
                     </div>
                 @endif
 
@@ -281,6 +285,7 @@
         });
     </script>
 
+    @stack('modals')
     @stack('scripts')
 </body>
 </html>

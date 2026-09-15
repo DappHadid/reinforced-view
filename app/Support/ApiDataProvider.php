@@ -130,11 +130,11 @@ class ApiDataProvider
     // GRAPH (rekomendasi path)
     // -------------------------------------------------------------------------
 
-    public static function graph(string $targetName, array $rekomNames): array
+    public static function graph(string $targetName, array $rekomNames, bool $useCascading = true): array
     {
         $res = self::get('/api/rekomendasi', [
             'name'          => $targetName,
-            'use_cascading' => 'true',
+            'use_cascading' => $useCascading ? 'true' : 'false',
         ]);
         if ($res && $res['status'] === 'success' && isset($res['graph'])) {
             return [
@@ -143,6 +143,30 @@ class ApiDataProvider
             ];
         }
         return ['nodes' => [], 'edges' => []];
+    }
+
+    /**
+     * Enrich graph nodes with stats from a pre-built lookup map.
+     * Only fills fields that are missing or null in the node — API values always win.
+     *
+     * @param array $graphData   ['nodes' => [...], 'edges' => [...]]
+     * @param array $statsById   [ sinta_id => ['h_index'=>int, 'publication_count'=>int, 'department'=>str, 'ane_score'=>float|null] ]
+     * @return array             enriched $graphData
+     */
+    public static function enrichGraphNodes(array $graphData, array $statsById): array
+    {
+        $graphData['nodes'] = array_map(function ($node) use ($statsById) {
+            $sid   = (string) ($node['sinta_id'] ?? $node['id'] ?? '');
+            $extra = $statsById[$sid] ?? [];
+            // Only fill fields not already set by the API
+            foreach ($extra as $key => $value) {
+                if (!array_key_exists($key, $node) || $node[$key] === null) {
+                    $node[$key] = $value;
+                }
+            }
+            return $node;
+        }, $graphData['nodes']);
+        return $graphData;
     }
 
     // -------------------------------------------------------------------------
@@ -274,4 +298,3 @@ class ApiDataProvider
         }, $res['data']);
     }
 }
-
