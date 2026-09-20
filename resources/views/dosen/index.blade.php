@@ -117,7 +117,7 @@
                     <span class="inline-block rounded-lg bg-white/90 backdrop-blur-sm
                                  px-2.5 py-1 text-[10px] font-semibold text-slate-600 shadow-sm
                                  border border-white/50">
-                        {{ Str::limit($dosen['prodi'], 22) }}
+                        {{ $dosen['prodi'] }}
                     </span>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                            min-h-[2.75rem] group-hover:text-primary-700 transition-colors">
                     {{ $dosen['nama_display'] }}
                 </h3>
-                <p class="mt-1 text-[11px] font-medium text-slate-400 truncate">
+                <p class="mt-1 text-xs font-medium text-slate-400 truncate">
                     {{ $dosen['fakultas'] }}
                 </p>
 

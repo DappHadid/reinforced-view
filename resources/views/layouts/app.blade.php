@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'REINFORCED')</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -34,13 +35,12 @@
             html.sidebar-mobile-open {
                 overflow: hidden;
             }
-            html.sidebar-mobile-open #sidebar {
-                transform: translateX(0) !important;
-            }
             html.sidebar-mobile-open #sidebar-backdrop {
                 opacity: 1 !important;
                 pointer-events: auto !important;
             }
+        }
+
         /* Floating toggle button when navbar is hidden */
         .dashboard-floating-toggle {
             display: flex;
@@ -88,7 +88,6 @@
                     </div>
                     <div class="min-w-0">
                         <p class="text-base font-extrabold tracking-tight text-slate-900 leading-none group-hover:text-primary-600 transition-colors">REINFORCED</p>
-                        <p class="text-xs font-normal text-slate-400 mt-1 truncate">Research Collaborator Rec.</p>
                     </div>
                 </a>
 
@@ -241,7 +240,18 @@
                         localStorage.setItem('reinforced_sidebar_collapsed', willCollapse ? 'true' : 'false');
                     } catch (e) {}
                 } else {
-                    html.classList.toggle('sidebar-mobile-open');
+                    const willOpen = !html.classList.contains('sidebar-mobile-open');
+                    html.classList.toggle('sidebar-mobile-open', willOpen);
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        if (willOpen) {
+                            sidebar.classList.remove('-translate-x-full');
+                            sidebar.classList.add('translate-x-0');
+                        } else {
+                            sidebar.classList.remove('translate-x-0');
+                            sidebar.classList.add('-translate-x-full');
+                        }
+                    }
                 }
                 updateToggleTooltip();
                 setTimeout(() => {
@@ -257,6 +267,11 @@
                     } catch (e) {}
                 } else {
                     html.classList.remove('sidebar-mobile-open');
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('translate-x-0');
+                        sidebar.classList.add('-translate-x-full');
+                    }
                 }
                 updateToggleTooltip();
                 setTimeout(() => {

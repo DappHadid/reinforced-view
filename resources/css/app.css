@@ -5,48 +5,8 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url('/fonts/SF-Pro-Display-Light.otf') format('opentype');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url('/fonts/SF-Pro-Display-Regular.otf') format('opentype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url('/fonts/SF-Pro-Display-Medium.otf') format('opentype');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url('/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url('/fonts/SF-Pro-Display-Bold.otf') format('opentype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
 @theme {
-    --font-sans: 'SF Pro Display', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
         
     --color-primary-50: #fff1e6;

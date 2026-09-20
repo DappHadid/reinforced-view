@@ -56,7 +56,7 @@
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
                 <p class="text-[32px] sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-none">{{ count($dosenList) }}</p>
-                <p class="text-xs font-normal text-slate-500 mt-2">Peneliti Terdaftar</p>
+                <p class="text-sm font-medium text-slate-500 mt-2">Peneliti Terdaftar</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
                 <img src="{{ asset('images/Partnership-rafiki.svg') }}" 
@@ -69,7 +69,7 @@
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
                 <p class="text-[32px] sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-none">{{ number_format($totalPublikasi ?? 0) }}</p>
-                <p class="text-xs font-normal text-slate-500 mt-2">Total Publikasi</p>
+                <p class="text-sm font-medium text-slate-500 mt-2">Total Publikasi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
                 <img src="{{ asset('images/Online document-rafiki.svg') }}" 
@@ -82,7 +82,7 @@
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
                 <p class="text-[32px] sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-none">{{ number_format($totalRelasi ?? 0) }}</p>
-                <p class="text-xs font-normal text-slate-500 mt-2">Relasi Kolaborasi</p>
+                <p class="text-sm font-medium text-slate-500 mt-2">Relasi Kolaborasi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
                 <img src="{{ asset('images/Connected world-rafiki.svg') }}" 
@@ -95,7 +95,7 @@
         <div class="group rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 overflow-hidden min-h-[140px]">
             <div class="min-w-0 flex-1 z-10">
                 <p class="text-[32px] sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-none">{{ count($departemenList) }}</p>
-                <p class="text-xs font-normal text-slate-500 mt-2">Program Studi</p>
+                <p class="text-sm font-medium text-slate-500 mt-2">Program Studi</p>
             </div>
             <div class="shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 -my-4 -mr-2 flex items-center justify-center">
                 <img src="{{ asset('images/college campus-amico.svg') }}"
@@ -106,10 +106,10 @@
     </section>
 
     {{-- ============ TENTANG REINFORCED ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-xs">
+    <section class="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-xs">
         <div class="flex items-start justify-between gap-6 flex-wrap">
             <div class="flex-1 min-w-[300px]">
-                <h2 class="text-base font-semibold text-slate-900">Apa itu REINFORCED?</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Apa itu REINFORCED?</h2>
                 <p class="text-base text-slate-500 mt-2 leading-relaxed">
                     REINFORCED adalah sistem rekomendasi kolaborator penelitian yang dibangun di atas
                     <span class="font-semibold text-slate-700">Attributed Network Embedding (ANE)</span> menggunakan
@@ -134,6 +134,54 @@
             <div class="rounded-xl border border-slate-200 p-4">
                 <p class="text-base font-semibold text-primary-700 uppercase tracking-wide">Cascading Hybrid</p>
                 <p class="text-base text-slate-500 mt-1">Menambahkan prioritas kemiripan topik via S-BERT (semantic similarity judul publikasi).</p>
+            </div>
+        </div>
+
+        {{-- Divider --}}
+        <hr class="border-slate-200 my-10">
+        
+        {{-- Bagian Didukung Oleh --}}
+        <div class="text-center mb-10">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-6">Didukung Oleh</h3>
+            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+                <img src="{{ asset('images/logo_itenas1.png') }}" alt="Logo Itenas 1" class="h-20 md:h-28 object-contain drop-shadow-sm hover:scale-105 transition-transform">
+                <img src="{{ asset('images/logo_itenas2.png') }}" alt="Logo Itenas 2" class="h-20 md:h-28 object-contain drop-shadow-sm hover:scale-105 transition-transform">
+                <img src="{{ asset('images/logo_lppm.png') }}" alt="Logo LPPM" class="h-12 md:h-16 object-contain drop-shadow-sm hover:scale-105 transition-transform">
+            </div>
+        </div>
+
+        {{-- Divider --}}
+        <hr class="border-slate-200 mb-10">
+        
+        {{-- Bagian Dikembangkan Oleh --}}
+        <div class="text-center">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-6">Dikembangkan Oleh</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+                @php
+                    $pengembang = [
+                        ['nama' => 'KURNIA RAMADHAN PUTRA S.Kom., M.T.', 'peran' => 'Ketua Peneliti', 'foto' => 'images/profile_picture/KURNIA RAMADHAN PUTRA.png'],
+                        ['nama' => 'ASEP RIZAL NURJAMAN, S.Kom., M.Kom.', 'peran' => 'Dosen Prodi', 'foto' => 'images/profile_picture/ASEP RIZAL NURJAMAN.png'],
+                        ['nama' => 'SOFIA UMAROH, S.Pd., M.T.', 'peran' => 'Dosen Prodi', 'foto' => 'images/profile_picture/SOFIA UMAROH.png'],
+                        ['nama' => 'BENNART DEM GUNAWAN', 'peran' => 'Mahasiswa', 'foto' => 'images/mahasiswa_1.jpeg'],
+                        ['nama' => 'LUTFI FIRMANSYAH PUTRA', 'peran' => 'Mahasiswa', 'foto' => 'images/mahasiswa_2.jpeg'],
+                        ['nama' => 'DAFFA MAULANA IBRAHIM', 'peran' => 'Mahasiswa', 'foto' => 'images/mahasiswa_3.jpeg']
+                    ];
+                @endphp
+                @foreach ($pengembang as $item)
+                    <div class="rounded-2xl border border-slate-200 p-4 shadow-xs hover:shadow-md transition-all flex flex-col items-center gap-3 bg-slate-50/50">
+                        @if($item['foto'])
+                            <img src="{{ asset($item['foto']) }}" alt="{{ $item['nama'] }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md shrink-0 bg-white">
+                        @else
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200 shadow-sm shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 sm:h-9 sm:w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                        @endif
+                        <div>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 leading-tight">{{ $item['nama'] }}</p>
+                            <p class="text-[10px] sm:text-xs font-medium text-slate-500 mt-1">{{ $item['peran'] }}</p>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </section>

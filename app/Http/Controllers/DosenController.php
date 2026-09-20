@@ -215,12 +215,121 @@ class DosenController extends Controller
 
         $graphData = ApiDataProvider::enrichGraphNodes($graphData, $statsById);
 
+        $targetName = strtolower(trim($detail['hasName'] ?? $detail['nama']));
+        $allReviews = ApiDataProvider::penilaianRekap();
+        $evaluasiTarget = null;
+        foreach ($allReviews as $rev) {
+            if (strtolower(trim($rev['nama'])) === $targetName) {
+                $evaluasiTarget = $rev;
+                break;
+            }
+        }
+        if ($evaluasiTarget && isset($evaluasiTarget['rekomendasi'])) {
+            foreach ($evaluasiTarget['rekomendasi'] as &$r) {
+                $rName = strtolower(trim($r['nama'] ?? ''));
+                $r['avatar'] = 'images/avatar.jpg';
+                foreach ($dosenById as $d) {
+                    if (strtolower(trim($d['nama'] ?? '')) === $rName) {
+                        $r['avatar'] = $d['avatar_image'] ?? 'images/avatar.jpg';
+                        break;
+                    }
+                }
+            }
+        }
+
         return view('dosen.show', [
-            'dosen'       => $detail,
-            'publikasi'   => $publikasi,
-            'rekomendasi' => $rekomendasi,
-            'graphData'   => $graphData,
-            'useCascading' => $useCascading,
+            'dosen'          => $detail,
+            'publikasi'      => $publikasi,
+            'rekomendasi'    => $rekomendasi,
+            'graphData'      => $graphData,
+            'sintaId'        => $sintaId,
+            'useCascading'   => $useCascading,
+            'evaluasiTarget' => $evaluasiTarget,
+        ]);
+    }
+
+    public function cetakLaporan(string $sintaId)
+    {
+        $detail = ApiDataProvider::dosenDetail($sintaId);
+        abort_if($detail === null, 404);
+
+        $detail = self::transform([
+            'nama'       => $detail['hasName']       ?? '',
+            'sinta_id'   => $detail['hasSintaID']    ?? $sintaId,
+            'departemen' => $detail['hasDepartment'] ?? '',
+        ], 0);
+        $detail = array_merge($detail, ApiDataProvider::dosenDetail($sintaId) ?? []);
+
+        $dosenById = [];
+        foreach (ApiDataProvider::dosenList() as $index => $dosenItem) {
+            $dosenById[(string) ($dosenItem['sinta_id'] ?? '')] = self::transform($dosenItem, $index);
+        }
+
+        $targetName = strtolower(trim($detail['hasName'] ?? $detail['nama']));
+
+        // --- CASCADING HYBRID ---
+        $rekomendasiCascading = ApiDataProvider::rekomendasi($detail['hasName'] ?? $detail['nama'], true);
+        $rekomendasiCascading = array_map(function ($rek, $index) use ($dosenById) {
+            $sintaIdRek = (string) ($rek['Rekomendasi_SINTA_ID'] ?? '');
+            $rek['meta'] = $dosenById[$sintaIdRek] ?? self::transform(['nama' => $rek['Rekomendasi_Nama'] ?? '', 'sinta_id' => $sintaIdRek], $index);
+            return $rek;
+        }, $rekomendasiCascading, array_keys($rekomendasiCascading));
+        $rekomNamesCas = array_slice(array_column($rekomendasiCascading, 'Rekomendasi_Nama'), 0, 4);
+        $graphCascading = ApiDataProvider::graph($detail['hasName'] ?? $detail['nama'], $rekomNamesCas, true);
+
+        // --- STANDARD ANE ---
+        $rekomendasiStandar = ApiDataProvider::rekomendasi($detail['hasName'] ?? $detail['nama'], false);
+        $rekomendasiStandar = array_map(function ($rek, $index) use ($dosenById) {
+            $sintaIdRek = (string) ($rek['Rekomendasi_SINTA_ID'] ?? '');
+            $rek['meta'] = $dosenById[$sintaIdRek] ?? self::transform(['nama' => $rek['Rekomendasi_Nama'] ?? '', 'sinta_id' => $sintaIdRek], $index);
+            return $rek;
+        }, $rekomendasiStandar, array_keys($rekomendasiStandar));
+        $rekomNamesStd = array_slice(array_column($rekomendasiStandar, 'Rekomendasi_Nama'), 0, 4);
+        $graphStandar = ApiDataProvider::graph($detail['hasName'] ?? $detail['nama'], $rekomNamesStd, false);
+
+        // -- EVALUASI PENGGUNA --
+        $allReviews = ApiDataProvider::penilaianRekap();
+        $evaluasiTarget = null;
+        foreach ($allReviews as $rev) {
+            if (strtolower(trim($rev['nama'])) === $targetName) {
+                $evaluasiTarget = $rev;
+                break;
+            }
+        }
+        if ($evaluasiTarget && isset($evaluasiTarget['rekomendasi'])) {
+            foreach ($evaluasiTarget['rekomendasi'] as &$r) {
+                $rName = strtolower(trim($r['nama'] ?? ''));
+                $r['avatar'] = 'images/avatar.jpg';
+                foreach ($dosenById as $d) {
+                    if (strtolower(trim($d['nama'] ?? '')) === $rName) {
+                        $r['avatar'] = $d['avatar_image'] ?? 'images/avatar.jpg';
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Stats helper (simplified for both graphs)
+        $statsById = [];
+        $statsById[(string)($detail['hasSintaID'] ?? $sintaId)] = [
+            'h_index' => $detail['ns0__hasHIndexScholar'] ?? null, 'publication_count' => $detail['ns0__hasPublicationScholar'] ?? null, 'department' => $detail['prodi'] ?? null
+        ];
+        foreach (array_merge($rekomendasiCascading, $rekomendasiStandar) as $rek) {
+            $sid = (string)($rek['Rekomendasi_SINTA_ID'] ?? '');
+            if ($sid !== '') $statsById[$sid] = ['h_index' => $rek['Detail_Statistik']['ns0__hasHIndexScholar'] ?? null, 'publication_count' => $rek['Detail_Statistik']['ns0__hasPublicationScholar'] ?? null, 'department' => $rek['meta']['prodi'] ?? null, 'ane_score' => $rek['Skor Kemiripan'] ?? null];
+        }
+        
+        $graphCascading = ApiDataProvider::enrichGraphNodes($graphCascading, $statsById);
+        $graphStandar = ApiDataProvider::enrichGraphNodes($graphStandar, $statsById);
+
+        return view('dosen.cetak_laporan', [
+            'detail'               => $detail,
+            'sintaId'              => $sintaId,
+            'rekomendasiCascading' => $rekomendasiCascading,
+            'graphCascading'       => $graphCascading,
+            'rekomendasiStandar'   => $rekomendasiStandar,
+            'graphStandar'         => $graphStandar,
+            'evaluasiTarget'       => $evaluasiTarget,
         ]);
     }
 }

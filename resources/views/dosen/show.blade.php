@@ -7,7 +7,7 @@
 @section('content')
 
     {{-- ============ BREADCRUMB ============ --}}
-    <nav class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+    <nav class="flex items-center gap-2 text-sm text-slate-400 mb-1">
         <a href="{{ route('dosen.index') }}" class="hover:text-slate-700 transition-colors font-medium">Profil Dosen</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold truncate">{{ $dosen['hasName'] }}</span>
@@ -73,14 +73,10 @@
 
             {{-- Right: Actions --}}
             <div class="flex items-center gap-2.5 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
-                <!-- <button onclick="copyProfileLink()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors shadow-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    <span>Salin Link</span>
-                </button> -->
-                <!-- <a href="{{ route('rekomendasi', ['name' => $dosen['hasName'], 'use_cascading' => $useCascading ? 'true' : 'false']) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-xs font-semibold text-white transition-colors shadow-xs">
-                    <span>Cari Rekomendasi</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                </a> -->
+                <a href="{{ route('dosen.export_pdf', $dosen['hasSintaID'] ?? $sintaId) }}" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-xs" title="Buka Tab Khusus Cetak Laporan Dosen">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Export Laporan PDF</span>
+                </a>
             </div>
 
         </div>
@@ -124,8 +120,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-semibold text-slate-900">Graph Jaringan Kolaborasi</h3>
-                            <p class="text-xs font-normal text-slate-400">Interaktif &bull; Klik node untuk melihat kandidat</p>
+                            <h3 class="text-lg font-bold text-slate-900">Graph Jaringan Kolaborasi</h3>
+                            <p class="text-sm font-normal text-slate-400">Interaktif &bull; Klik node untuk melihat kandidat</p>
                         </div>
                     </div>
 
@@ -335,9 +331,153 @@
 
     </section>
 
+    {{-- ============ EVALUASI PENGGUNA (PRINT INCLUDED) ============ --}}
+    @if(isset($evaluasiTarget))
+    <section class="rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col mt-6" id="evaluasi-section">
+        <div class="px-6 py-4 border-b border-slate-100 bg-white">
+            <div>
+                <h2 class="text-xl font-semibold text-slate-900">Riwayat Evaluasi Pengguna</h2>
+            </div>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            @php
+                $evals = collect($evaluasiTarget['rekomendasi'] ?? []);
+                // Defaulting to fallback if metode is not exactly matched, but checking primarily for Standar/Cascading
+                $evalStandar = $evals->filter(fn($r) => stripos($r['metode'] ?? '', 'Standar') !== false || stripos($r['metode'] ?? '', 'ANE') !== false);
+                $evalCascading = $evals->filter(fn($r) => stripos($r['metode'] ?? '', 'Cascading') !== false || stripos($r['metode'] ?? '', 'Hybrid') !== false);
+                
+                // If by some reason metode is not found or empty, let's just group them alternatively as a fallback so it doesn't appear empty if data is missing 'metode' key
+                if ($evalStandar->isEmpty() && $evalCascading->isEmpty() && $evals->isNotEmpty()) {
+                    $evalStandar = $evals->filter(fn($r) => stripos($r['metode'] ?? 'Standar', 'Standar') !== false);
+                    $evalCascading = collect(); // If no metode field exists, we just put them all in Standar or we can just leave it as is based on actual data
+                }
+            @endphp
+
+            {{-- Kolom Metode Standar --}}
+            <div class="flex flex-col gap-4">
+                <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-2">Metode Standar</h3>
+                @forelse($evalStandar as $rev)
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-3 print:break-inside-avoid">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <img src="{{ asset($rev['avatar'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0 shadow-sm" alt="{{ $rev['nama'] }}">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-slate-900 truncate leading-tight">{{ $rev['nama'] }}</p>
+                                    <div class="mt-1 flex items-center gap-0.5">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 {{ $i <= ($rev['score'] ?? 0) ? 'text-amber-400' : 'text-slate-200' }}" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        @endfor
+                                        <span class="ml-1 text-xs font-bold text-amber-600">{{ number_format($rev['score'] ?? 0, 1) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50/50 rounded-lg p-3 border border-slate-100">
+                            <p class="text-sm font-normal text-slate-600 leading-relaxed italic">
+                                "{{ $rev['komentar'] ?: 'Tidak ada komentar.' }}"
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center text-slate-400 py-4 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">Belum ada evaluasi.</div>
+                @endforelse
+            </div>
+
+            {{-- Kolom Metode Cascading Hybrid --}}
+            <div class="flex flex-col gap-4">
+                <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-2">Metode Cascading Hybrid</h3>
+                @forelse($evalCascading as $rev)
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-3 print:break-inside-avoid">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <img src="{{ asset($rev['avatar'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0 shadow-sm" alt="{{ $rev['nama'] }}">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-slate-900 truncate leading-tight">{{ $rev['nama'] }}</p>
+                                    <div class="mt-1 flex items-center gap-0.5">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 {{ $i <= ($rev['score'] ?? 0) ? 'text-amber-400' : 'text-slate-200' }}" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        @endfor
+                                        <span class="ml-1 text-xs font-bold text-amber-600">{{ number_format($rev['score'] ?? 0, 1) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50/50 rounded-lg p-3 border border-slate-100">
+                            <p class="text-sm font-normal text-slate-600 leading-relaxed italic">
+                                "{{ $rev['komentar'] ?: 'Tidak ada komentar.' }}"
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center text-slate-400 py-4 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">Belum ada evaluasi.</div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+    @endif
+
 @endsection
 
 @push('scripts')
+<style>
+    @media print {
+        /* Hide Navbar and Sidebar */
+        nav, aside, header, .sidebar, .navbar, #pub-search-input, #pagination-controls, button {
+            display: none !important;
+        }
+        /* Make main content take full width */
+        main, .main-content, #main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        body {
+            background-color: white !important;
+        }
+        /* Re-layout Grid for A4 Paper */
+        .lg\\:grid-cols-12 {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 20px !important;
+        }
+        /* Hide scrollbars & expand max-heights */
+        .overflow-y-auto {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        .max-h-\\[520px\\] {
+            max-height: none !important;
+        }
+        /* Ensure Graph displays well */
+        #network-graph {
+            position: relative !important;
+            height: 350px !important;
+            border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+        }
+        /* Avoid breaks inside cards */
+        .print\\:break-inside-avoid, .shadow-xs, .border, .rounded-2xl {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        section {
+            page-break-inside: avoid !important;
+            margin-bottom: 24px !important;
+        }
+        /* Background Colors for Badges in Chrome Print */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
 <script>
     // ============ GLOBAL DATA & STATE ============
     const allPublikasi = @json($publikasi);

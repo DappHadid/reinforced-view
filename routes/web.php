@@ -13,6 +13,7 @@ Route::post('/rekomendasi/penilaian', [RekomendasiController::class, 'submitPeni
 
 Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
 Route::get('/dosen/{sintaId}', [DosenController::class, 'show'])->name('dosen.show');
+Route::get('/dosen/{sintaId}/cetak-laporan', [DosenController::class, 'cetakLaporan'])->name('dosen.export_pdf');
 
 Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi');
 
