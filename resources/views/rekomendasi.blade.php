@@ -7,7 +7,7 @@
 @section('content')
 
     {{-- ============ SEARCH FORM ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm">
+    <section id="tour-search-section" class="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm">
         <div class="flex flex-col lg:flex-row gap-8 lg:items-center">
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 mb-6">
@@ -29,10 +29,10 @@
                     <div class="lg:col-span-3">
                         <label class="block text-base font-semibold text-slate-700 mb-2">Metode Algoritma</label>
                         <div class="flex rounded-xl border border-slate-300 bg-slate-50 p-1 font-medium h-[50px]">
-                            <label class="cursor-pointer flex-1 h-full flex items-center justify-center">
+                            <!-- <label class="cursor-pointer flex-1 h-full flex items-center justify-center">
                                 <input type="radio" name="use_cascading" value="false" class="peer sr-only" {{ !$useCascading ? 'checked' : '' }}>
                                 <span class="flex h-full w-full items-center justify-center px-2 rounded-lg text-xs sm:text-base text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Standar</span>
-                            </label>
+                            </label> -->
                             <label class="cursor-pointer flex-1 h-full flex items-center justify-center">
                                 <input type="radio" name="use_cascading" value="true" class="peer sr-only" {{ $useCascading ? 'checked' : '' }}>
                                 <span class="flex h-full w-full items-center justify-center px-2 rounded-lg text-xs sm:text-base text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Cascading Hybrid</span>
@@ -71,7 +71,7 @@
 
     @if($currentName !== '')
         {{-- ============ GRAPH ============ --}}
-        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <section id="tour-graph-section" class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                 <div class="flex items-center gap-2">
                     <div class="p-2 rounded-xl bg-primary-50 text-primary-600">
@@ -155,7 +155,7 @@
         </section>
 
         {{-- ============ RECOMMENDATION TABLE ============ --}}
-        <section class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+        <section id="tour-table-section" class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100">
                 <h2 class="text-xl font-semibold text-slate-900">Top {{ count($rekomendasi) }} Rekomendasi Kolaborator</h2>
                 <p class="text-xs font-normal text-slate-400">Untuk {{ strtoupper($currentName) }} &middot; Metode {{ $useCascading ? 'Cascading Hybrid' : 'Standar' }}</p>
@@ -237,19 +237,21 @@
                                     $rekNameLower = strtolower(trim($r['Rekomendasi_Nama']));
                                     $hasEvaluatedThis = in_array($rekNameLower, $evaluatedRekomendasi);
                                 @endphp
-                                
-                                @if($hasEvaluatedThis)
-                                    <button type="button" disabled
-                                        class="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-emerald-50 border border-emerald-100 text-xs font-bold text-emerald-600 cursor-not-allowed">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                        Dinilai
-                                    </button>
-                                @else
-                                    <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
-                                        class="inline-flex items-center gap-1.5 h-9 px-5 rounded-full bg-primary-600 text-xs font-bold text-white shadow-sm hover:bg-primary-700 hover:shadow transition-all group-hover:scale-105">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        Beri Nilai
-                                    </button>
+
+                                @if($isOwner)
+                                    @if($hasEvaluatedThis)
+                                        <button type="button" disabled
+                                            class="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-emerald-50 border border-emerald-100 text-xs font-bold text-emerald-600 cursor-not-allowed">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                            Dinilai
+                                        </button>
+                                    @else
+                                        <button type="button" onclick="document.getElementById('rating-{{ $modalId }}').showModal()"
+                                            class="inline-flex items-center gap-1.5 h-9 px-5 rounded-full bg-primary-600 text-xs font-bold text-white shadow-sm hover:bg-primary-700 hover:shadow transition-all group-hover:scale-105">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            Beri Nilai
+                                        </button>
+                                    @endif
                                 @endif
                             </div>
                         </div>

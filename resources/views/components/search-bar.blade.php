@@ -14,5 +14,4 @@
     <span id="{{ $labelId }}" class="flex-1 truncate font-medium text-slate-{{ $currentName !== '' ? '800' : '400' }}">
         {{ $currentName !== '' ? $currentName : $placeholder }}
     </span>
-    <kbd class="hidden rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-400 sm:inline">⌘ K</kbd>
 </button>

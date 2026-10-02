@@ -109,6 +109,7 @@ class ApiDataProvider
         $res = self::get('/api/rekomendasi', [
             'name'          => $name,
             'use_cascading' => $useCascading ? 'true' : 'false',
+            'top_n'         => 10,
         ]);
         if ($res && $res['status'] === 'success') {
             return array_map(function ($r) {

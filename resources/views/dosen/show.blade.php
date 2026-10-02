@@ -14,7 +14,7 @@
     </nav>
 
     {{-- ============ PROFILE HEADER CARD ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 p-6 sm:p-7 shadow-xs">
+    <section id="tour-profile-header" class="rounded-2xl bg-white border border-slate-200 p-6 sm:p-7 shadow-xs">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             
             {{-- Left: Avatar + Details --}}
@@ -85,7 +85,7 @@
 
 
     {{-- ============ METODE REKOMENDASI ============ --}}
-    <form action="{{ route('dosen.show', $dosen['hasSintaID']) }}" method="GET" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <!-- <form action="{{ route('dosen.show', $dosen['hasSintaID']) }}" method="GET" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
             <h2 class="text-xl font-semibold text-slate-900">Metode Rekomendasi</h2>
             <p class="text-xs font-normal text-slate-500 mt-0.5">Pilih metode untuk memperbarui kandidat dan visualisasi jaringan.</p>
@@ -94,7 +94,7 @@
             <label class="cursor-pointer"><input onchange="this.form.submit()" type="radio" name="use_cascading" value="false" class="peer sr-only" {{ !$useCascading ? 'checked' : '' }}><span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all">Standar</span></label>
             <label class="cursor-pointer"><input onchange="this.form.submit()" type="radio" name="use_cascading" value="true" class="peer sr-only" {{ $useCascading ? 'checked' : '' }}><span class="block px-3 py-1.5 rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-primary-700 peer-checked:shadow-sm transition-all whitespace-nowrap">Cascading Hybrid</span></label>
         </div>
-    </form>
+    </form> -->
 
     {{-- ============ GRAPH & TOP REKOMENDASI FOCUS SECTION ============ --}}
     <section class="space-y-4">
@@ -112,7 +112,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {{-- MINI GRAPH CANVAS (7 Cols) --}}
-            <div class="lg:col-span-7 rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col min-h-[540px]">
+            <div id="tour-profile-graph" class="lg:col-span-7 rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col min-h-[540px]">
                 {{-- Graph Header --}}
                 <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
                     <div class="flex items-center gap-2">
@@ -121,7 +121,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-slate-900">Graph Jaringan Kolaborasi</h3>
-                            <p class="text-sm font-normal text-slate-400">Interaktif &bull; Klik node untuk melihat kandidat</p>
+                            <!-- <p class="text-sm font-normal text-slate-400">Interaktif &bull; Klik node untuk melihat kandidat</p> -->
                         </div>
                     </div>
 
@@ -208,26 +208,34 @@
             </div>
 
             {{-- TOP REKOMENDASI LIST CARDS (5 Cols) --}}
-            <div class="lg:col-span-5 rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col min-h-[540px]">
+            <div id="tour-profile-rekomendasi" class="lg:col-span-5 rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col min-h-[540px]">
                 <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-                    <div>
-                        <h3 class="text-base font-semibold text-slate-900">Top Rekomendasi Kolaborator</h3>
-                        <p class="text-xs font-normal text-slate-400 mt-0.5">Kandidat terbaik hasil analisis algoritma</p>
+                    <h3 class="text-base font-semibold text-slate-900">Top Rekomendasi Kolaborator</h3>
+                    
+                    {{-- Sorting Dropdown --}}
+                    <div class="relative">
+                        <select onchange="sortRekomendasi(this.value)" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 cursor-pointer shadow-sm transition-all">
+                            <option value="model">Rekomendasi Model</option>
+                            <option value="evaluasi">Rekomendasi Akhir</option>
+                        </select>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {{ count($rekomendasi ?? []) }} Kandidat
-                    </span>
                 </div>
 
-                <div class="divide-y divide-slate-100 flex-1 overflow-y-auto max-h-[520px]">
+                <div class="divide-y divide-slate-100 flex-1 overflow-y-auto max-h-[520px]" id="rekomendasi-list-container">
                     @forelse($rekomendasi ?? [] as $index => $rek)
                         @php
                             $meta = $rek['meta'] ?? [];
                             $skorPercent = round(($rek['Skor Kemiripan'] ?? 0.8) * 100, 1);
                             $sintaIdRek = $rek['Rekomendasi_SINTA_ID'] ?? '6000000';
                             $stat = $rek['Detail_Statistik'] ?? [];
+                            
+                            // Skeleton eval score (bisa diganti dengan data asli jika sudah ada)
+                            $evalScore = 0; 
                         @endphp
-                        <div id="rekom-card-{{ $sintaIdRek }}" class="p-4 hover:bg-slate-50 transition-colors group">
+                        <div id="rekom-card-{{ $sintaIdRek }}" class="rekom-card p-4 hover:bg-slate-50 transition-colors group" data-model-score="{{ $rek['Skor Kemiripan'] ?? 0 }}" data-eval-score="{{ $evalScore }}">
                             <div class="flex items-start gap-3">
                                 {{-- Rank & Avatar --}}
                                 <div class="relative shrink-0">
@@ -242,7 +250,7 @@
                                             {{ $meta['initials'] ?? strtoupper(substr($rek['Rekomendasi_Nama'], 0, 2)) }}
                                         </div>
                                     </div>
-                                    <span class="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-semibold flex items-center justify-center shadow-xs">
+                                    <span class="rekom-rank absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-semibold flex items-center justify-center shadow-xs">
                                         #{{ $index + 1 }}
                                     </span>
                                 </div>
@@ -288,7 +296,7 @@
     </section>
 
     {{-- ============ DAFTAR PUBLIKASI (FULL WIDTH SECTION) ============ --}}
-    <section class="rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+    <section id="tour-profile-publikasi" class="rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden flex flex-col">
         
         {{-- Header & Search Bar --}}
         <div class="px-6 py-4 border-b border-slate-100 bg-white">
@@ -843,6 +851,35 @@
         });
         document.getElementById('graph-reset')?.addEventListener('click', () => {
             network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+        });
+    }
+
+    // ============ SORTING REKOMENDASI ============
+    function sortRekomendasi(sortType) {
+        const container = document.getElementById('rekomendasi-list-container');
+        if (!container) return;
+        
+        const cards = Array.from(container.querySelectorAll('.rekom-card'));
+        
+        cards.sort((a, b) => {
+            if (sortType === 'evaluasi') {
+                const evalA = parseFloat(a.dataset.evalScore) || 0;
+                const evalB = parseFloat(b.dataset.evalScore) || 0;
+                return evalB - evalA;
+            } else {
+                const modelA = parseFloat(a.dataset.modelScore) || 0;
+                const modelB = parseFloat(b.dataset.modelScore) || 0;
+                return modelB - modelA;
+            }
+        });
+        
+        // Re-append and update rank badges
+        cards.forEach((card, index) => {
+            container.appendChild(card);
+            const rankBadge = card.querySelector('.rekom-rank');
+            if (rankBadge) {
+                rankBadge.textContent = '#' + (index + 1);
+            }
         });
     }
 </script>

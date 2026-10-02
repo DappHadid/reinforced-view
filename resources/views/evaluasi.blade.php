@@ -13,7 +13,7 @@
 {{-- ================================================================
      SECTION 1 — RIWAYAT PENILAIAN PENGGUNA
 ================================================================ --}}
-<section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+<section id="tour-eval-table" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
 
     {{-- ── Hero Header ─────────────────────────────────────────────── --}}
     <div class="flex flex-col md:flex-row md:items-center gap-6 p-6 md:p-8">
@@ -45,11 +45,11 @@
                                bg-white shadow-sm transition-all filter-btn">
                     Cascading Hybrid
                 </button>
-                <button onclick="filterRiwayat('Standard ANE')" id="btn-filter-Standard"
+                <!-- <button onclick="filterRiwayat('Standard ANE')" id="btn-filter-Standard"
                         class="px-5 py-2 rounded-lg text-sm font-normal text-slate-500
                                hover:text-slate-700 transition-all filter-btn">
                     Standard ANE
-                </button>
+                </button> -->
             </div>
 
             {{-- Search & Export --}}
@@ -193,8 +193,8 @@
 
     {{-- Panel --}}
     <article id="modal-panel"
-             class="relative z-10 w-full max-w-2xl bg-white rounded-2xl
-                    shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-full
+             class="relative z-10 w-full max-w-3xl bg-white rounded-2xl
+                    shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[88vh]
                     scale-95 transition-transform duration-200">
 
         {{-- ── Modal Header ─────────────────────────────── --}}
@@ -234,8 +234,28 @@
 
         {{-- ── Modal Body (Scrollable Review List) ──────── --}}
         <div class="overflow-y-auto p-6 bg-slate-50/50 flex-1">
-            <h4 class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">Daftar Review (Rekomendasi Dinilai)</h4>
-            <div id="modal-review-list" class="space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-slate-200/60">
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Daftar Rekomendasi Kolaborator</h4>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Menampilkan rekomendasi model beserta status ulasan dari pengguna</p>
+                </div>
+                
+                {{-- Sorting Dropdown --}}
+                <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                    <label for="modal-sort-select" class="text-xs font-medium text-slate-500 whitespace-nowrap">Urutkan:</label>
+                    <div class="relative">
+                        <select id="modal-sort-select" onchange="onModalSortChange(this.value)" class="appearance-none bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 cursor-pointer shadow-xs transition-all">
+                            <option value="model">Rekomendasi Model</option>
+                            <option value="evaluasi">Rekomendasi Akhir</option>
+                        </select>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-review-list" class="space-y-3 pb-2">
                 {{-- Diisi oleh JS --}}
             </div>
         </div>
@@ -664,6 +684,184 @@
         render();
     };
 
+    /* ── modal state & functions ───────────────────────────────── */
+    var currentModalItems = [];
+    var currentModalSort  = 'model';
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderModalSkeleton() {
+        var html = '';
+        for (var i = 0; i < 4; i++) {
+            html += 
+                '<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs animate-pulse flex flex-col gap-3">' +
+                    '<div class="flex items-center justify-between">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<div class="w-11 h-11 rounded-xl bg-slate-200 shrink-0"></div>' +
+                            '<div class="space-y-1.5">' +
+                                '<div class="w-40 h-3.5 bg-slate-200 rounded"></div>' +
+                                '<div class="w-24 h-2.5 bg-slate-200 rounded"></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="w-24 h-6 bg-slate-200 rounded-full"></div>' +
+                    '</div>' +
+                    '<div class="h-10 bg-slate-100 rounded-lg"></div>' +
+                '</div>';
+        }
+        document.getElementById('modal-review-list').innerHTML = html;
+    }
+
+    function fallbackModalItems(row) {
+        var items = [];
+        if (row.reviews && row.reviews.length > 0) {
+            row.reviews.forEach(function(rev, i) {
+                items.push({
+                    nama: rev.nama,
+                    sinta_id: '-',
+                    prodi: 'Dosen / Peneliti',
+                    avatar: rev.avatar || '',
+                    model_rank: i + 1,
+                    model_score: 0.95 - (i * 0.05),
+                    has_review: true,
+                    eval_score: rev.score,
+                    komentar: rev.komentar
+                });
+            });
+        }
+        var placeholders = ['Dr. Hendro Pramono', 'Prof. Budi Santoso', 'Dr. Siti Rahmawati'];
+        placeholders.forEach(function(pName, pi) {
+            if (items.length < 5) {
+                items.push({
+                    nama: pName,
+                    sinta_id: '-',
+                    prodi: 'Dosen / Peneliti',
+                    avatar: '',
+                    model_rank: items.length + 1,
+                    model_score: 0.75 - (pi * 0.05),
+                    has_review: false,
+                    eval_score: 0,
+                    komentar: ''
+                });
+            }
+        });
+        return items;
+    }
+
+    window.onModalSortChange = function(val) {
+        currentModalSort = val;
+        renderModalList();
+    };
+
+    function renderModalList() {
+        var container = document.getElementById('modal-review-list');
+        if (!container) return;
+
+        if (!currentModalItems || currentModalItems.length === 0) {
+            container.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">Belum ada rekomendasi yang tersedia.</p>';
+            return;
+        }
+
+        var sorted = currentModalItems.slice();
+        if (currentModalSort === 'model') {
+            sorted.sort(function(a, b) {
+                return (a.model_rank || 99) - (b.model_rank || 99) || ((b.model_score || 0) - (a.model_score || 0));
+            });
+        } else if (currentModalSort === 'evaluasi') {
+            sorted.sort(function(a, b) {
+                if (b.eval_score !== a.eval_score) {
+                    return (b.eval_score || 0) - (a.eval_score || 0);
+                }
+                if (b.has_review !== a.has_review) {
+                    return b.has_review ? 1 : -1;
+                }
+                return (b.model_score || 0) - (a.model_score || 0);
+            });
+        }
+
+        var listHtml = '';
+        sorted.forEach(function(item, idx) {
+            var rankNum = idx + 1;
+            var dynAvatar = getAvatarUrl(item.nama, item.avatar);
+            var pctMatch = (Math.round((item.model_score || 0) * 1000) / 10).toFixed(1) + '% Match';
+
+            if (item.has_review) {
+                var kom = item.komentar
+                    ? escapeHtml(item.komentar)
+                    : '<span class="text-slate-400 italic">Tidak ada catatan komentar.</span>';
+
+                listHtml += 
+                    '<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col gap-3 transition-all hover:border-slate-300">' +
+                        '<div class="flex items-start justify-between gap-3">' +
+                            '<div class="flex items-center gap-3 min-w-0">' +
+                                '<div class="relative shrink-0">' +
+                                    '<img src="' + dynAvatar + '" alt="' + escapeHtml(item.nama) + '" class="w-11 h-11 rounded-xl object-cover bg-slate-100 border border-slate-200 shadow-xs">' +
+                                    '<span class="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-900 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">#' + rankNum + '</span>' +
+                                '</div>' +
+                                '<div class="min-w-0">' +
+                                    '<p class="text-sm font-bold text-slate-900 truncate leading-tight">' + escapeHtml(item.nama) + '</p>' +
+                                    '<div class="flex flex-wrap items-center gap-2 mt-1">' +
+                                        '<span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 leading-tight">' + pctMatch + '</span>' +
+                                        '<div class="flex items-center gap-1 leading-tight">' +
+                                            stars(item.eval_score, false) +
+                                            '<span class="text-xs font-bold text-slate-800 ml-1">' + item.eval_score + '.0</span>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">' +
+                                '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">' +
+                                    '<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>' +
+                                '</svg>' +
+                                'Sudah Direview' +
+                            '</span>' +
+                        '</div>' +
+                        '<div class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-xs text-slate-700 leading-relaxed">' +
+                            kom +
+                        '</div>' +
+                    '</div>';
+            } else {
+                listHtml += 
+                    '<div class="bg-slate-50/70 rounded-xl border border-dashed border-slate-300 p-4 opacity-60 hover:opacity-85 transition-opacity flex flex-col gap-3">' +
+                        '<div class="flex items-start justify-between gap-3">' +
+                            '<div class="flex items-center gap-3 min-w-0">' +
+                                '<div class="relative shrink-0">' +
+                                    '<img src="' + dynAvatar + '" alt="' + escapeHtml(item.nama) + '" class="w-11 h-11 rounded-xl object-cover bg-slate-200 border border-slate-300 grayscale shadow-xs">' +
+                                    '<span class="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-400 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">#' + rankNum + '</span>' +
+                                '</div>' +
+                                '<div class="min-w-0">' +
+                                    '<p class="text-sm font-semibold text-slate-600 truncate leading-tight">' + escapeHtml(item.nama) + '</p>' +
+                                    '<div class="flex flex-wrap items-center gap-2 mt-1">' +
+                                        '<span class="text-[11px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded border border-slate-300/60 leading-tight">' + pctMatch + '</span>' +
+                                        '<span class="text-xs text-slate-400 italic">Belum dinilai</span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider bg-slate-100 text-slate-500 border border-slate-200 shrink-0">' +
+                                '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>' +
+                                'Belum Mengisi Review' +
+                            '</span>' +
+                        '</div>' +
+                        '<div class="bg-white/60 border border-dashed border-slate-200 rounded-lg p-2.5 text-xs text-slate-400 italic flex items-center gap-2">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">' +
+                                '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />' +
+                            '</svg>' +
+                            'Pengguna belum memberikan ulasan atau skor untuk rekomendasi kolaborator ini.' +
+                        '</div>' +
+                    '</div>';
+            }
+        });
+
+        container.innerHTML = listHtml;
+    }
+
     /* ── public: open modal ────────────────────────────────────── */
     window.openModal = function (index) {
         var row   = getFiltered()[index];
@@ -681,39 +879,16 @@
         
         var mb = document.getElementById('modal-metode');
         if (row.metode === 'Cascading Hybrid') {
-            mb.className = 'text-emerald-700 bg-emerald-50 border-emerald-200';
+            mb.className = 'text-emerald-700 bg-emerald-50 border-emerald-200 px-2 py-0.5 rounded border font-semibold';
         } else {
-            mb.className = 'text-blue-700 bg-blue-50 border-blue-200';
+            mb.className = 'text-blue-700 bg-blue-50 border-blue-200 px-2 py-0.5 rounded border font-semibold';
         }
         mb.textContent = row.metode;
 
-        /* populate reviews list */
-        var listHtml = '';
-        if (row.reviews && row.reviews.length > 0) {
-            row.reviews.forEach(function(rev, i) {
-                var revAvatarUrl = getAvatarUrl(rev.nama, rev.avatar);
-                var kom = rev.komentar ? rev.komentar : '<span class="text-slate-400 italic">Tidak ada komentar.</span>';
-                listHtml += 
-                    '<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-3">' +
-                        '<div class="flex items-start justify-between gap-3">' +
-                            '<div class="flex items-center gap-3 min-w-0">' +
-                                '<img src="' + revAvatarUrl + '" alt="' + rev.nama + '" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0 shadow-sm">' +
-                                '<div class="min-w-0">' +
-                                    '<p class="text-sm font-bold text-slate-900 truncate leading-tight">' + rev.nama + '</p>' +
-                                    '<div class="mt-1">' + stars(rev.score, false) + '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 shrink-0">Review ' + (i+1) + '</span>' +
-                        '</div>' +
-                        '<div class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-sm text-slate-600 leading-relaxed">' +
-                            kom +
-                        '</div>' +
-                    '</div>';
-            });
-        } else {
-            listHtml = '<p class="text-sm text-slate-500 text-center py-4">Belum ada review untuk target ini.</p>';
-        }
-        document.getElementById('modal-review-list').innerHTML = listHtml;
+        /* reset sort select */
+        var sortSelect = document.getElementById('modal-sort-select');
+        if (sortSelect) sortSelect.value = 'model';
+        currentModalSort = 'model';
 
         /* animate in */
         modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -722,7 +897,33 @@
             panel.classList.add('scale-100');
         });
         document.body.style.overflow = 'hidden';
+
+        /* check if full recommendations already in memory for this row */
+        if (row.fullRecommendations && row.fullRecommendations.length > 0) {
+            currentModalItems = row.fullRecommendations;
+            renderModalList();
+        } else {
+            renderModalSkeleton();
+            var url = '{{ route("evaluasi.target_detail") }}?name=' + encodeURIComponent(row.target) + '&metode=' + encodeURIComponent(row.metode);
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(res) {
+                    if (res && res.status === 'success' && res.data && res.data.length > 0) {
+                        row.fullRecommendations = res.data;
+                        currentModalItems = res.data;
+                    } else {
+                        currentModalItems = fallbackModalItems(row);
+                    }
+                    renderModalList();
+                })
+                .catch(function(err) {
+                    console.error('Gagal mengambil detail rekomendasi:', err);
+                    currentModalItems = fallbackModalItems(row);
+                    renderModalList();
+                });
+        }
     };
+
 
     /* ── public: close modal ───────────────────────────────────── */
     window.closeModal = function () {

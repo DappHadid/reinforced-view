@@ -116,8 +116,8 @@
     {{-- ================= METODE 1: CASCADING HYBRID ================= --}}
     <section class="mb-10 avoid-break">
         <div class="mb-4">
-            <h2 class="text-xl font-bold text-slate-900 border-l-4 border-emerald-500 pl-3">Metode 1: Cascading Hybrid</h2>
-            <p class="text-sm text-slate-500 mt-1 pl-4">Menampilkan top 5 rekomendasi beserta jaringan visual berdasarkan kalkulasi berlapis (Cascading).</p>
+            <h2 class="text-xl font-bold text-slate-900 border-l-4 border-emerald-500 pl-3">Metode Cascading Hybrid</h2>
+            <p class="text-sm text-slate-500 mt-1 pl-4">Menampilkan top 10 rekomendasi beserta jaringan visual berdasarkan kalkulasi berlapis (Cascading).</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,7 +128,7 @@
             </div>
             {{-- List 1 --}}
             <div class="flex flex-col">
-                <h3 class="text-sm font-semibold text-slate-700 mb-2">Top 5 Kolaborator</h3>
+                <h3 class="text-sm font-semibold text-slate-700 mb-2">Top 10 Kolaborator</h3>
                 <div class="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
                     @forelse($rekomendasiCascading as $index => $rek)
                         <div class="p-3 flex items-start gap-3">
@@ -152,7 +152,7 @@
     </section>
 
     {{-- ================= METODE 2: STANDARD ANE ================= --}}
-    <section class="mb-10 avoid-break break-before">
+    <!-- <section class="mb-10 avoid-break break-before">
         <div class="mb-4">
             <h2 class="text-xl font-bold text-slate-900 border-l-4 border-blue-500 pl-3">Metode 2: Standard ANE</h2>
             <p class="text-sm text-slate-500 mt-1 pl-4">Menampilkan top 5 rekomendasi beserta jaringan visual berdasarkan kalkulasi standar.</p>
@@ -187,7 +187,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     {{-- ================= EVALUASI PENGGUNA ================= --}}
     @if($evaluasiTarget && !empty($evaluasiTarget['rekomendasi']))
@@ -206,57 +206,80 @@
             {{-- Review Cascading Hybrid --}}
             <div class="flex flex-col gap-4">
                 <h3 class="text-base font-bold text-slate-800 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100 mb-1">Metode Cascading Hybrid</h3>
-                @forelse($cascadingReviews as $rev)
-                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm avoid-break">
-                        <div class="flex items-start gap-3">
-                            <img src="{{ asset($rev['avatar'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0" alt="{{ $rev['nama'] }}">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-900 leading-tight">{{ $rev['nama'] }}</p>
-                                <div class="mt-1 flex items-center gap-0.5">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-3.5 h-3.5 {{ $i <= ($rev['score'] ?? 0) ? 'text-amber-400' : 'text-slate-200' }}" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                        </svg>
-                                    @endfor
-                                    <span class="ml-1 text-xs font-bold text-amber-600">{{ number_format($rev['score'] ?? 0, 1) }}</span>
-                                </div>
-                                <div class="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100 text-sm text-slate-600 italic">
-                                    "{{ $rev['komentar'] ?: 'Tidak ada komentar.' }}"
+                @php
+                    $cascadingReviewsCollection = collect($cascadingReviews);
+                @endphp
+                @foreach(array_slice($rekomendasiCascading, 0, 10) as $rek)
+                    @php
+                        $rekName = trim($rek['Rekomendasi_Nama'] ?? '');
+                        $rev = $cascadingReviewsCollection->first(function($r) use ($rekName) {
+                            return strtolower(trim($r['nama'] ?? '')) === strtolower($rekName);
+                        });
+                    @endphp
+                    @if($rev)
+                        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm avoid-break">
+                            <div class="flex items-start gap-3">
+                                <img src="{{ asset($rev['avatar'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0" alt="{{ $rev['nama'] }}">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-slate-900 leading-tight">{{ $rev['nama'] }}</p>
+                                    <div class="mt-1 flex items-center gap-0.5">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3.5 h-3.5 {{ $i <= ($rev['score'] ?? 0) ? 'text-amber-400' : 'text-slate-200' }}" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        @endfor
+                                        <span class="ml-1 text-xs font-bold text-amber-600">{{ number_format($rev['score'] ?? 0, 1) }}</span>
+                                    </div>
+                                    <div class="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100 text-sm text-slate-600 italic">
+                                        "{{ $rev['komentar'] ?: 'Tidak ada komentar.' }}"
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @empty
-                    <div class="text-sm text-slate-400 p-4 text-center border border-dashed rounded-xl">Belum ada review untuk model ini.</div>
-                @endforelse
+                    @else
+                        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 shadow-sm avoid-break opacity-60 grayscale">
+                            <div class="flex items-start gap-3">
+                                <img src="{{ asset($rek['meta']['avatar_image'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0" alt="{{ $rekName }}">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-slate-500 leading-tight">{{ $rekName }}</p>
+                                    <div class="mt-3 bg-slate-100/50 rounded-lg p-3 border border-slate-200 text-sm text-slate-400 italic">
+                                        Belum memberikan penilaian (Menunggu tanggapan).
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
             </div>
 
-            {{-- Review Standard ANE --}}
+            {{-- Penilaian Akhir --}}
             <div class="flex flex-col gap-4">
-                <h3 class="text-base font-bold text-slate-800 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 mb-1">Metode Standard ANE</h3>
-                @forelse($standardReviews as $rev)
-                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm avoid-break">
-                        <div class="flex items-start gap-3">
-                            <img src="{{ asset($rev['avatar'] ?? 'images/avatar.jpg') }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0" alt="{{ $rev['nama'] }}">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-900 leading-tight">{{ $rev['nama'] }}</p>
-                                <div class="mt-1 flex items-center gap-0.5">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-3.5 h-3.5 {{ $i <= ($rev['score'] ?? 0) ? 'text-amber-400' : 'text-slate-200' }}" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                        </svg>
-                                    @endfor
-                                    <span class="ml-1 text-xs font-bold text-amber-600">{{ number_format($rev['score'] ?? 0, 1) }}</span>
-                                </div>
-                                <div class="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100 text-sm text-slate-600 italic">
-                                    "{{ $rev['komentar'] ?: 'Tidak ada komentar.' }}"
-                                </div>
-                            </div>
+                <h3 class="text-base font-bold text-slate-800 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg border border-amber-100 mb-1">Penilaian Akhir</h3>
+                
+                @php
+                    $totalReviews = count($cascadingReviews);
+                    $avgScore = $totalReviews > 0 ? collect($cascadingReviews)->avg('score') : 0;
+                @endphp
+
+                <div class="bg-white rounded-xl border border-slate-200 p-8 shadow-sm flex flex-col items-center justify-center text-center sticky top-8">
+                    <div class="w-24 h-24 bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 rounded-full flex items-center justify-center mb-6 shadow-inner border border-amber-200/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <h4 class="text-5xl font-extrabold text-slate-900 mb-2">{{ number_format($avgScore, 1) }} <span class="text-2xl text-slate-300 font-medium">/ 5.0</span></h4>
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Rata-rata Penilaian</p>
+                    
+                    <div class="mt-8 pt-6 border-t border-slate-100 w-full flex items-center justify-between">
+                        <div class="flex-1 text-center">
+                            <p class="text-3xl font-extrabold text-slate-800">{{ $totalReviews }}</p>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">Ulasan Masuk</p>
+                        </div>
+                        <div class="w-px h-12 bg-slate-100"></div>
+                        <div class="flex-1 text-center">
+                            <p class="text-3xl font-extrabold text-slate-400">{{ max(0, 10 - $totalReviews) }}</p>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">Belum Menilai</p>
                         </div>
                     </div>
-                @empty
-                    <div class="text-sm text-slate-400 p-4 text-center border border-dashed rounded-xl">Belum ada review untuk model ini.</div>
-                @endforelse
+                </div>
             </div>
         </div>
     </section>

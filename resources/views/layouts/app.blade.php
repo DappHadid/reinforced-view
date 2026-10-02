@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'REINFORCED')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +15,70 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 
+    {{-- Driver.js for Tour --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+
     <style>
+        /* Custom Driver.js Theme - Soft & Friendly */
+        .driver-popover, .driver-popover * {
+            font-family: 'Outfit', sans-serif !important;
+        }
+        .driver-popover {
+            background-color: #ffffff !important;
+            color: #334155 !important;
+            border-radius: 1.25rem !important; /* rounded-xl/2xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #f1f5f9 !important;
+            padding: 24px !important;
+        }
+        .driver-popover-title {
+            font-size: 1.125rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .driver-popover-description {
+            font-size: 0.875rem !important;
+            line-height: 1.6 !important;
+            color: #64748b !important;
+        }
+        .driver-popover-footer {
+            margin-top: 1.25rem !important;
+        }
+        .driver-popover-next-btn, .driver-popover-prev-btn {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.75rem !important;
+            padding: 0.5rem 1rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            text-shadow: none !important;
+            transition: all 0.2s ease !important;
+        }
+        .driver-popover-next-btn {
+            background-color: #f97316 !important; /* Tailwind orange-500 (primary) */
+            color: #ffffff !important;
+            border-color: #f97316 !important;
+        }
+        .driver-popover-next-btn:hover {
+            background-color: #ea580c !important;
+            transform: translateY(-1px);
+        }
+        .driver-popover-prev-btn:hover {
+            background-color: #f1f5f9 !important;
+            transform: translateY(-1px);
+        }
+        .driver-popover-close-btn {
+            color: #94a3b8 !important;
+            top: 16px !important;
+            right: 16px !important;
+        }
+        .driver-popover-close-btn:hover {
+            color: #475569 !important;
+        }
+        
         .vis-network:focus { outline: none; }
 
         /* Desktop Sidebar Collapsed State */
@@ -123,13 +187,16 @@
                         $baseRoute = explode('.', $item['route'])[0];
                         $isActive = request()->routeIs($baseRoute) || request()->routeIs($baseRoute . '.*');
                     @endphp
-                    <a href="{{ route($item['route']) }}"
+                    <a id="nav-{{ $baseRoute }}" href="{{ route($item['route']) }}"
                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-semibold transition-colors {{ $isActive ? 'bg-primary-50 text-primary-700' : 'font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $item['icon'] !!}</svg>
                         <span class="truncate">{{ $item['label'] }}</span>
                     </a>
                 @endforeach
             </nav>
+
+            @include('components.sidebar-user-panel')
+
         </aside>
 
         {{-- ============ MAIN CONTENT WRAPPER ============ --}}
@@ -301,6 +368,13 @@
     </script>
 
     @stack('modals')
+
+
+    {{-- ═══════════════════════════════════════════════════════
+         INTERACTIVE ONBOARDING TOUR (Driver.js)
+    ═══════════════════════════════════════════════════════ --}}
+    @include('components.onboarding-tour')
+
     @stack('scripts')
 </body>
 </html>

@@ -10,7 +10,7 @@ class RekomendasiController extends Controller
 {
     public function index(Request $request)
     {
-        $name = $request->query('name', 'KURNIA RAMADHAN PUTRA');
+        $name = $request->query('name', session('auth_nama', ''));
         $useCascading = $request->query('use_cascading', 'true') === 'true';
 
         $dosenList = ApiDataProvider::dosenList();
@@ -98,14 +98,18 @@ class RekomendasiController extends Controller
             }
         }
 
+        // Apakah dosen yang dicari = dosen yang sedang login?
+        $isOwner = $name !== '' && strcasecmp(trim($name), trim(session('auth_nama', ''))) === 0;
+
         return view('rekomendasi', [
-            'dosenList' => $dosenList,
-            'dosenSearch' => array_map(fn ($dosen, $index) => DosenController::transform($dosen, $index), $dosenList, array_keys($dosenList)),
-            'rekomendasi' => $rekomendasi,
-            'graphData' => $graphData,
-            'currentName' => $name,
-            'useCascading' => $useCascading,
+            'dosenList'            => $dosenList,
+            'dosenSearch'          => array_map(fn ($dosen, $index) => DosenController::transform($dosen, $index), $dosenList, array_keys($dosenList)),
+            'rekomendasi'          => $rekomendasi,
+            'graphData'            => $graphData,
+            'currentName'          => $name,
+            'useCascading'         => $useCascading,
             'evaluatedRekomendasi' => $evaluatedRekomendasi,
+            'isOwner'              => $isOwner,
         ]);
     }
 
