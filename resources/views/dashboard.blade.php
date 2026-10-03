@@ -29,7 +29,7 @@
                     <a href="{{ route('rekomendasi') }}" 
                        class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4.5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-primary-700 hover:shadow-lg transition-all active:scale-95">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <span>Cari Rekomendasi</span>
+                        <span>Cari Kolaborator</span>
                     </a>
                     <a href="{{ route('dosen.index') }}" 
                        class="inline-flex items-center gap-2 rounded-xl bg-white px-4.5 py-2.5 text-sm font-semibold text-slate-800 border border-slate-300 hover:bg-slate-50 transition-all shadow-xs">

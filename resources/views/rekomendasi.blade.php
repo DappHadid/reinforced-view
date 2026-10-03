@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Cari Rekomendasi | REINFORCED')
-@section('page-title', 'Cari Rekomendasi')
+@section('title', 'Cari Kolaborator | REINFORCED')
+@section('page-title', 'Cari Kolaborator')
 @section('page-subtitle', 'Temukan kandidat kolaborator penelitian berdasarkan jaringan &amp; kemiripan topik')
 
 @section('content')
@@ -12,7 +12,7 @@
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <h2 class="text-2xl font-bold text-slate-900">Cari Rekomendasi</h2>
+                    <h2 class="text-2xl font-bold text-slate-900">Cari Kolaborator</h2>
                 </div>
 
                 <form action="{{ route('rekomendasi') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 items-end">
@@ -43,7 +43,7 @@
                     <div class="lg:col-span-3">
                         <button type="submit" class="flex w-full h-[50px] items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            Cari Rekomendasi
+                            Cari Kolaborator
                         </button>
                     </div>
                 </form>

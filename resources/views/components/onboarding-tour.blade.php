@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isPageTransition: true,
                 transitionUrl: "{{ route('rekomendasi') }}",
                 popover: { 
-                    title: 'Cari Rekomendasi', 
+                    title: 'Cari Kolaborator', 
                     description: 'Ini adalah fitur utama sistem ini! Mari kita klik Lanjut untuk membuka halaman Rekomendasi.',
                     side: "right", align: 'start'
                 } 
@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 isPageTransitionBack: true,
                 transitionUrlBack: "{{ route('dashboard') }}",
                 popover: { 
-                    title: 'Pencarian Otomatis', 
-                    description: 'Sistem otomatis menampilkan rekomendasi terbaik untuk Anda. Anda juga bisa mencari dosen lain untuk melihat jaringannya.',
+                    title: 'Pencarian Kolaborator', 
+                    description: 'Sistem akan menampilkan kolaborator terbaik untuk Anda. Anda juga bisa mencari dosen lain untuk melihat jaringannya.',
                     side: "bottom", align: 'center'
                 } 
             },
