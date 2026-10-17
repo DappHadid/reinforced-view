@@ -12,7 +12,10 @@ use Illuminate\Support\Facades\Log;
  */
 class ApiDataProvider
 {
-    private const API_BASE = 'http://127.0.0.1:8000';
+    private static function baseUrl(): string
+    {
+        return env('PYTHON_API_URL', 'http://127.0.0.1:8000');
+    }
 
     // -------------------------------------------------------------------------
     // HELPER
@@ -21,7 +24,7 @@ class ApiDataProvider
     private static function get(string $path, array $query = []): ?array
     {
         try {
-            $response = Http::timeout(30)->get(self::API_BASE . $path, $query);
+            $response = Http::timeout(30)->get(self::baseUrl() . $path, $query);
             if ($response->successful()) {
                 return $response->json();
             }

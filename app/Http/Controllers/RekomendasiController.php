@@ -129,7 +129,7 @@ class RekomendasiController extends Controller
                 ? 'Cascading Hybrid' 
                 : 'Standard ANE';
 
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->post('http://127.0.0.1:8000/api/penilaian', [
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->post(env('PYTHON_API_URL', 'http://127.0.0.1:8000') . '/api/penilaian', [
                 'target_name' => $validated['name'],
                 'evaluations' => [
                     [
