@@ -27,12 +27,12 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'sinta_id' => ['required', 'digits:7'],
+            'sinta_id' => ['required', 'digits_between:5,8'],
             'password' => ['required'],
         ], [
-            'sinta_id.required' => 'Nomor SINTA ID wajib diisi.',
-            'sinta_id.digits'   => 'SINTA ID harus tepat 7 digit angka.',
-            'password.required' => 'Password wajib diisi.',
+            'sinta_id.required'       => 'Nomor SINTA ID wajib diisi.',
+            'sinta_id.digits_between' => 'SINTA ID tidak valid.',
+            'password.required'       => 'Password wajib diisi.',
         ]);
 
         $sintaId = $request->input('sinta_id');
