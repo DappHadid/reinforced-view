@@ -16,15 +16,20 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          echo "🔑 Setting up SSH connection..."
+          echo "🔍 Checking SSH configuration..."
+          if [ -z "$SSH_HOST" ]; then echo "❌ SSH_HOST is empty!"; exit 1; fi
+          if [ -z "$SSH_USER" ]; then echo "❌ SSH_USER is empty!"; exit 1; fi
+          if [ -z "$SSH_KEY" ]; then echo "❌ SSH_KEY is empty!"; exit 1; fi
+
           mkdir -p ~/.ssh
           echo "$SSH_KEY" | tr -d '\r' > ~/.ssh/id_vps
           chmod 600 ~/.ssh/id_vps
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-          echo "🚀 Connecting and running deploy script..."
-          ssh -i ~/.ssh/id_vps -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" bash -s << 'EOF'
+          echo "🚀 Testing connection to $SSH_USER@$SSH_HOST..."
+          ssh -i ~/.ssh/id_vps -o StrictHostKeyChecking=no -o ConnectTimeout=15 "$SSH_USER@$SSH_HOST" bash -s << 'EOF'
             set -e
+            echo "✅ Connected to VPS successfully!"
+
             echo "📁 Entering project directory..."
             cd /var/www/reinforced-view
 
@@ -56,5 +61,5 @@ jobs:
             systemctl reload php8.2-fpm
             systemctl reload nginx
 
-            echo "✅ Deployment Laravel selesai dengan sukses!"
+            echo "🎉 Deployment Laravel selesai dengan sukses!"
           EOF
