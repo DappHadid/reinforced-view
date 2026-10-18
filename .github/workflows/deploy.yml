@@ -1,0 +1,50 @@
+name: Deploy Laravel to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            echo "🚀 Starting Deployment on VPS..."
+            cd /var/www/reinforced-view
+            
+            # Ambil update kode terbaru
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Install dependensi PHP & jalankan migrasi
+            composer install --no-dev --optimize-autoloader
+            php artisan migrate --force
+            
+            # Build frontend Vite
+            npm install
+            npm run build
+            
+            # Optimasi cache Laravel
+            php artisan config:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            # Pastikan permission folder storage & cache aman
+            chown -R www-data:www-data storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
+            
+            # Reload web server & PHP
+            systemctl reload php8.2-fpm
+            systemctl reload nginx
+            
+            echo "✅ Deployment Laravel selesai dengan sukses!"
